@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   ArrowUpFromLine,
   Blocks,
@@ -7,11 +8,16 @@ import {
   FlaskConical,
   HandMetal,
   Sparkles,
+  Save,
+  CloudUpload,
+  Check,
 } from "lucide-react";
 import Header from "@/components/Header";
 import HeroStatus from "@/components/HeroStatus";
 import InspectionCard from "@/components/InspectionCard";
 import BottomNav from "@/components/BottomNav";
+
+type Status = "safe" | "unsafe" | "na" | null;
 
 const categories = [
   { title: "Working at Height", icon: ArrowUpFromLine },
@@ -24,7 +30,40 @@ const categories = [
   { title: "Housekeeping", icon: Sparkles },
 ];
 
+const STORAGE_KEY = "she-analytics-statuses";
+
+const loadStatuses = (): Record<string, Status> => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
 const Index = () => {
+  const [statuses, setStatuses] = useState<Record<string, Status>>(loadStatuses);
+  const [syncing, setSyncing] = useState(false);
+  const [synced, setSynced] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(statuses));
+  }, [statuses]);
+
+  const handleStatusChange = (title: string, status: Status) => {
+    setStatuses((prev) => ({ ...prev, [title]: status }));
+  };
+
+  const handleSaveDraft = () => {
+    setSyncing(true);
+    setSynced(false);
+    setTimeout(() => {
+      setSyncing(false);
+      setSynced(true);
+      setTimeout(() => setSynced(false), 2000);
+    }, 1800);
+  };
+
   return (
     <div className="min-h-screen bg-background grid-pattern flex justify-center">
       <div className="w-full max-w-[480px]">
@@ -40,7 +79,7 @@ const Index = () => {
           </p>
         </div>
 
-        <main className="px-4 py-6 pb-24 space-y-6">
+        <main className="px-4 py-6 pb-32 space-y-6">
           <HeroStatus />
 
           <div>
@@ -49,10 +88,46 @@ const Index = () => {
             </h2>
             <div className="grid grid-cols-1 gap-3">
               {categories.map((cat, i) => (
-                <InspectionCard key={cat.title} title={cat.title} icon={cat.icon} index={i} />
+                <InspectionCard
+                  key={cat.title}
+                  title={cat.title}
+                  icon={cat.icon}
+                  index={i}
+                  status={statuses[cat.title] ?? null}
+                  onStatusChange={(s) => handleStatusChange(cat.title, s)}
+                />
               ))}
             </div>
           </div>
+
+          {/* Save Draft */}
+          <button
+            onClick={handleSaveDraft}
+            disabled={syncing}
+            className="w-full glass rounded-xl py-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider text-accent border border-accent/20 hover:border-accent/40 transition-all duration-300 disabled:opacity-70"
+          >
+            {syncing ? (
+              <>
+                <CloudUpload className="h-5 w-5 animate-pulse" />
+                Syncing to Cloud...
+              </>
+            ) : synced ? (
+              <>
+                <Check className="h-5 w-5 text-safe" />
+                <span className="text-safe">Draft Saved!</span>
+              </>
+            ) : (
+              <>
+                <Save className="h-5 w-5" />
+                Save Draft
+              </>
+            )}
+          </button>
+
+          {/* Footer */}
+          <p className="text-center clamp-body text-muted-foreground/60 tracking-wide pt-2">
+            SHE-Analytics v1.0 &nbsp;|&nbsp; Developed by Mr. Hadi
+          </p>
         </main>
 
         <BottomNav />

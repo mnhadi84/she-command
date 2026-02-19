@@ -4,19 +4,19 @@ const HeroStatus = () => {
   const compliance = 94;
 
   return (
-    <div className="glass rounded-xl p-6 glow-blue">
+    <div className="glass rounded-xl p-6 animate-scan transition-shadow duration-1000">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-display text-lg font-semibold text-muted-foreground uppercase tracking-wider">
+        <h2 className="font-display clamp-heading font-semibold text-muted-foreground uppercase tracking-wider">
           Safety Status
         </h2>
-        <span className="text-xs text-muted-foreground">Last updated: 2 min ago</span>
+        <span className="clamp-body text-muted-foreground">Last updated: 2 min ago</span>
       </div>
 
       <div className="flex items-end gap-6">
         <div className="flex-1">
           <div className="flex items-baseline gap-2 mb-2">
-            <span className="font-display text-6xl font-bold text-secondary">{compliance}%</span>
-            <span className="text-lg text-muted-foreground">Site Compliance</span>
+            <span className="font-display clamp-hero font-bold text-secondary">{compliance}%</span>
+            <span className="clamp-heading text-muted-foreground">Site Compliance</span>
           </div>
 
           {/* Progress bar */}

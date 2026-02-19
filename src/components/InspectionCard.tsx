@@ -13,35 +13,29 @@ interface InspectionCardProps {
 const InspectionCard = ({ title, icon: Icon, index }: InspectionCardProps) => {
   const [status, setStatus] = useState<Status>(null);
 
-  const glowClass =
-    status === "safe" ? "glow-green" : status === "unsafe" ? "glow-red" : "";
 
-  const borderClass =
-    status === "safe"
-      ? "border-safe/30"
-      : status === "unsafe"
-      ? "border-unsafe/30"
-      : "border-transparent";
 
   return (
     <div
-      className={`glass rounded-xl p-4 transition-all duration-300 ${glowClass} border ${borderClass}`}
+      className={`glass rounded-xl p-4 transition-all duration-300 border ${
+        status === "unsafe" ? "animate-border-glow-red" : status === "safe" ? "glow-green border-safe/30" : "border-transparent"
+      }`}
       style={{ animationDelay: `${index * 50}ms` }}
     >
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/15">
+        <div className="flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-lg bg-accent/15">
           <Icon className="h-5 w-5 text-accent" />
         </div>
-        <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-foreground leading-tight">
+        <h3 className="font-display clamp-heading font-semibold uppercase tracking-wide text-foreground leading-tight">
           {title}
         </h3>
       </div>
 
-      {/* Three-way toggle */}
+      {/* Three-way toggle — min 48px touch targets */}
       <div className="flex gap-1.5 mb-3">
         <button
           onClick={() => setStatus("safe")}
-          className={`flex-1 rounded-md px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
+          className={`flex-1 rounded-md px-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 ${
             status === "safe"
               ? "bg-safe text-primary-foreground shadow-lg"
               : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -51,7 +45,7 @@ const InspectionCard = ({ title, icon: Icon, index }: InspectionCardProps) => {
         </button>
         <button
           onClick={() => setStatus("unsafe")}
-          className={`flex-1 rounded-md px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
+          className={`flex-1 rounded-md px-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 ${
             status === "unsafe"
               ? "bg-unsafe text-primary-foreground shadow-lg"
               : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -61,7 +55,7 @@ const InspectionCard = ({ title, icon: Icon, index }: InspectionCardProps) => {
         </button>
         <button
           onClick={() => setStatus("na")}
-          className={`flex-1 rounded-md px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
+          className={`flex-1 rounded-md px-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 ${
             status === "na"
               ? "bg-na text-foreground shadow-lg"
               : "bg-muted text-muted-foreground hover:bg-muted/80"

@@ -108,6 +108,36 @@
     50% { opacity: 1; }
   }
 
+  .animate-scan {
+    animation: scan-pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes scan-pulse {
+    0%, 100% {
+      box-shadow: 0 0 15px hsla(var(--glow-green) / 0.15), 0 0 40px hsla(var(--glow-green) / 0.05);
+    }
+    50% {
+      box-shadow: 0 0 25px hsla(var(--glow-green) / 0.35), 0 0 60px hsla(var(--glow-green) / 0.15);
+    }
+  }
+
+  .animate-border-glow-red {
+    box-shadow: 0 0 12px hsla(var(--glow-red) / 0.4), 0 0 30px hsla(var(--glow-red) / 0.15);
+    border-color: hsla(var(--glow-red) / 0.5);
+  }
+
+  .clamp-heading {
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+  }
+
+  .clamp-body {
+    font-size: clamp(0.625rem, 2vw, 0.75rem);
+  }
+
+  .clamp-hero {
+    font-size: clamp(2.5rem, 10vw, 3.75rem);
+  }
+
   .grid-pattern {
     background-image: 
       linear-gradient(hsla(200 100% 36% / 0.05) 1px, transparent 1px),

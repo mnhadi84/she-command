@@ -1,12 +1,13 @@
-import { Shield } from "lucide-react";
+import { Shield, HardHat } from "lucide-react";
 
 const Header = () => {
   return (
     <header className="glass-strong sticky top-0 z-50 px-4 py-3">
-      <div className="container mx-auto flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 glow-red">
-            <Shield className="h-6 w-6 text-primary" />
+          {/* Circular helmet logo */}
+          <div className="flex h-11 w-11 items-center justify-center rounded-full glass border border-foreground/10 glow-blue">
+            <HardHat className="h-6 w-6 text-accent" />
           </div>
           <div>
             <h1 className="font-display text-xl font-bold tracking-wide text-foreground">

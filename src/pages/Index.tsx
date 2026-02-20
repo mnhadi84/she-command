@@ -18,6 +18,7 @@ import HeroStatus from "@/components/HeroStatus";
 import DailySummary from "@/components/DailySummary";
 import InspectionCard from "@/components/InspectionCard";
 import type { UnsafeDetails } from "@/components/InspectionCard";
+import EIASection from "@/components/EIASection";
 import BottomNav from "@/components/BottomNav";
 
 type Status = "safe" | "unsafe" | "na" | null;
@@ -35,6 +36,7 @@ const categories = [
 
 const STORAGE_KEY = "she-analytics-statuses";
 const DETAILS_KEY = "she-analytics-details";
+const EIA_KEY = "she-analytics-eia";
 
 const emptyDetails = (): UnsafeDetails => ({ severity: "", description: "", assignTo: "" });
 
@@ -56,9 +58,19 @@ const loadDetails = (): Record<string, UnsafeDetails> => {
   }
 };
 
+const loadEIA = (): Record<string, string> => {
+  try {
+    const raw = localStorage.getItem(EIA_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
 const Index = () => {
   const [statuses, setStatuses] = useState<Record<string, Status>>(loadStatuses);
   const [details, setDetails] = useState<Record<string, UnsafeDetails>>(loadDetails);
+  const [eiaValues, setEIAValues] = useState<Record<string, string>>(loadEIA);
   const [syncing, setSyncing] = useState(false);
   const [synced, setSynced] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
@@ -79,6 +91,14 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem(DETAILS_KEY, JSON.stringify(details));
   }, [details]);
+
+  useEffect(() => {
+    localStorage.setItem(EIA_KEY, JSON.stringify(eiaValues));
+  }, [eiaValues]);
+
+  const handleEIAChange = (key: string, value: string) => {
+    setEIAValues((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleStatusChange = (title: string, status: Status) => {
     setStatuses((prev) => ({ ...prev, [title]: status }));
@@ -147,7 +167,7 @@ const Index = () => {
 
           <div>
             <h2 className="font-display clamp-heading font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">
-              The Big Eight — Inspection Categories
+              The Big Nine — Inspection Categories
             </h2>
             <div className="grid grid-cols-1 gap-3">
               {filteredCategories.map((cat, i) => (
@@ -165,6 +185,8 @@ const Index = () => {
               ))}
             </div>
           </div>
+
+          <EIASection values={eiaValues} onChange={handleEIAChange} />
 
           {/* Save Draft */}
           <button

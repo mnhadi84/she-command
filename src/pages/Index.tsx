@@ -12,9 +12,11 @@ import {
   CloudUpload,
   Check,
 } from "lucide-react";
+import { toast } from "sonner";
 import Header from "@/components/Header";
 import HeroStatus from "@/components/HeroStatus";
 import InspectionCard from "@/components/InspectionCard";
+import type { UnsafeDetails } from "@/components/InspectionCard";
 import BottomNav from "@/components/BottomNav";
 
 type Status = "safe" | "unsafe" | "na" | null;
@@ -31,6 +33,9 @@ const categories = [
 ];
 
 const STORAGE_KEY = "she-analytics-statuses";
+const DETAILS_KEY = "she-analytics-details";
+
+const emptyDetails = (): UnsafeDetails => ({ severity: "", description: "", assignTo: "" });
 
 const loadStatuses = (): Record<string, Status> => {
   try {
@@ -41,20 +46,60 @@ const loadStatuses = (): Record<string, Status> => {
   }
 };
 
+const loadDetails = (): Record<string, UnsafeDetails> => {
+  try {
+    const raw = localStorage.getItem(DETAILS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
 const Index = () => {
   const [statuses, setStatuses] = useState<Record<string, Status>>(loadStatuses);
+  const [details, setDetails] = useState<Record<string, UnsafeDetails>>(loadDetails);
   const [syncing, setSyncing] = useState(false);
   const [synced, setSynced] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(statuses));
   }, [statuses]);
 
+  useEffect(() => {
+    localStorage.setItem(DETAILS_KEY, JSON.stringify(details));
+  }, [details]);
+
   const handleStatusChange = (title: string, status: Status) => {
     setStatuses((prev) => ({ ...prev, [title]: status }));
+    if (status !== "unsafe") {
+      setShowValidation(false);
+    }
+  };
+
+  const handleDetailsChange = (title: string, d: UnsafeDetails) => {
+    setDetails((prev) => ({ ...prev, [title]: d }));
+  };
+
+  const validateUnsafeFields = (): boolean => {
+    for (const cat of categories) {
+      if (statuses[cat.title] === "unsafe") {
+        const d = details[cat.title] || emptyDetails();
+        if (!d.severity || !d.description.trim()) {
+          return false;
+        }
+      }
+    }
+    return true;
   };
 
   const handleSaveDraft = () => {
+    if (!validateUnsafeFields()) {
+      setShowValidation(true);
+      toast.error("Please fill in all required fields for unsafe categories.");
+      return;
+    }
+    setShowValidation(false);
     setSyncing(true);
     setSynced(false);
     setTimeout(() => {
@@ -95,6 +140,9 @@ const Index = () => {
                   index={i}
                   status={statuses[cat.title] ?? null}
                   onStatusChange={(s) => handleStatusChange(cat.title, s)}
+                  unsafeDetails={details[cat.title] || emptyDetails()}
+                  onUnsafeDetailsChange={(d) => handleDetailsChange(cat.title, d)}
+                  showValidation={showValidation}
                 />
               ))}
             </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Camera } from "lucide-react";
+import { Camera, ChevronDown, AlertTriangle } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
   AlertDialog,
@@ -11,8 +11,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Status = "safe" | "unsafe" | "na" | null;
+
+export interface UnsafeDetails {
+  severity: string;
+  description: string;
+  assignTo: string;
+}
 
 interface InspectionCardProps {
   title: string;
@@ -20,9 +33,37 @@ interface InspectionCardProps {
   index: number;
   status: Status;
   onStatusChange: (status: Status) => void;
+  unsafeDetails: UnsafeDetails;
+  onUnsafeDetailsChange: (details: UnsafeDetails) => void;
+  showValidation: boolean;
 }
 
-const InspectionCard = ({ title, icon: Icon, index, status, onStatusChange }: InspectionCardProps) => {
+const severityOptions = ["Low", "Medium", "High", "Critical"];
+const assignToOptions = [
+  "Sub-con A",
+  "Sub-con B",
+  "Sub-con C",
+  "Construction Manager",
+  "Site Engineer",
+  "Site Supervisor",
+  "Safety Officer",
+  "Safety Supervisor",
+  "Environmental Officer",
+  "Scaffolder",
+  "Lifting Supervisor",
+  "Machinery Operator",
+];
+
+const InspectionCard = ({
+  title,
+  icon: Icon,
+  index,
+  status,
+  onStatusChange,
+  unsafeDetails,
+  onUnsafeDetailsChange,
+  showValidation,
+}: InspectionCardProps) => {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleToggle = (newStatus: Status) => {
@@ -37,6 +78,14 @@ const InspectionCard = ({ title, icon: Icon, index, status, onStatusChange }: In
     onStatusChange("unsafe");
     setShowConfirm(false);
   };
+
+  const updateDetail = (field: keyof UnsafeDetails, value: string) => {
+    onUnsafeDetailsChange({ ...unsafeDetails, [field]: value });
+  };
+
+  const missingFields = status === "unsafe" && showValidation;
+  const severityMissing = missingFields && !unsafeDetails.severity;
+  const descriptionMissing = missingFields && !unsafeDetails.description.trim();
 
   return (
     <>
@@ -89,16 +138,89 @@ const InspectionCard = ({ title, icon: Icon, index, status, onStatusChange }: In
         </div>
 
         {status === "unsafe" && (
-          <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-            <textarea
-              placeholder="Describe the hazard..."
-              className="w-full rounded-md bg-muted/60 border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
-              rows={2}
-            />
-            <button className="flex items-center gap-2 rounded-md bg-primary/15 border border-primary/30 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/25 transition-colors">
-              <Camera className="h-3.5 w-3.5" />
-              Add Photo
+          <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300 pt-1">
+            <div className="flex items-center gap-2 mb-1">
+              <AlertTriangle className="h-4 w-4 text-unsafe" />
+              <span className="clamp-body font-display font-semibold uppercase tracking-wider text-unsafe">
+                Issue Details
+              </span>
+            </div>
+
+            {/* Severity */}
+            <div>
+              <label className="clamp-body font-medium text-muted-foreground mb-1 block">
+                Severity <span className="text-unsafe">*</span>
+              </label>
+              <Select
+                value={unsafeDetails.severity}
+                onValueChange={(v) => updateDetail("severity", v)}
+              >
+                <SelectTrigger
+                  className={`w-full min-h-[48px] bg-muted/60 border ${
+                    severityMissing ? "border-unsafe/60 ring-1 ring-unsafe/40" : "border-border"
+                  }`}
+                >
+                  <SelectValue placeholder="Select severity level" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border z-50">
+                  {severityOptions.map((opt) => (
+                    <SelectItem key={opt} value={opt} className="min-h-[44px]">
+                      {opt}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {severityMissing && (
+                <p className="text-unsafe text-xs mt-1">Severity is required</p>
+              )}
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="clamp-body font-medium text-muted-foreground mb-1 block">
+                Description <span className="text-unsafe">*</span>
+              </label>
+              <textarea
+                placeholder="Describe your observation..."
+                value={unsafeDetails.description}
+                onChange={(e) => updateDetail("description", e.target.value)}
+                className={`w-full rounded-md bg-muted/60 border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none ${
+                  descriptionMissing ? "border-unsafe/60 ring-1 ring-unsafe/40" : "border-border"
+                }`}
+                rows={3}
+              />
+              {descriptionMissing && (
+                <p className="text-unsafe text-xs mt-1">Description is required</p>
+              )}
+            </div>
+
+            {/* Photo Upload */}
+            <button className="flex items-center gap-2 rounded-md bg-primary/15 border border-primary/30 px-3 min-h-[48px] text-xs font-medium text-primary hover:bg-primary/25 transition-colors w-full justify-center">
+              <Camera className="h-4 w-4" />
+              Upload Photo
             </button>
+
+            {/* Assign To */}
+            <div>
+              <label className="clamp-body font-medium text-muted-foreground mb-1 block">
+                Assign To
+              </label>
+              <Select
+                value={unsafeDetails.assignTo}
+                onValueChange={(v) => updateDetail("assignTo", v)}
+              >
+                <SelectTrigger className="w-full min-h-[48px] bg-muted/60 border border-border">
+                  <SelectValue placeholder="Select responsible party" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border z-50 max-h-[240px]">
+                  {assignToOptions.map((opt) => (
+                    <SelectItem key={opt} value={opt} className="min-h-[44px]">
+                      {opt}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         )}
       </div>

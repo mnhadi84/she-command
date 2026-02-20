@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import HeroStatus from "@/components/HeroStatus";
+import DailySummary from "@/components/DailySummary";
 import InspectionCard from "@/components/InspectionCard";
 import type { UnsafeDetails } from "@/components/InspectionCard";
 import BottomNav from "@/components/BottomNav";
@@ -61,6 +62,15 @@ const Index = () => {
   const [syncing, setSyncing] = useState(false);
   const [synced, setSynced] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const totalInspected = categories.filter((c) => statuses[c.title] === "safe" || statuses[c.title] === "unsafe").length;
+  const openIssues = categories.filter((c) => statuses[c.title] === "unsafe").length;
+  const naCategories = categories.filter((c) => statuses[c.title] === "na").length;
+
+  const filteredCategories = categories.filter((c) =>
+    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(statuses));
@@ -125,6 +135,14 @@ const Index = () => {
         </div>
 
         <main className="px-4 py-6 pb-32 space-y-6">
+          <DailySummary
+            totalInspected={totalInspected}
+            openIssues={openIssues}
+            naCategories={naCategories}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+
           <HeroStatus />
 
           <div>
@@ -132,7 +150,7 @@ const Index = () => {
               The Big Eight — Inspection Categories
             </h2>
             <div className="grid grid-cols-1 gap-3">
-              {categories.map((cat, i) => (
+              {filteredCategories.map((cat, i) => (
                 <InspectionCard
                   key={cat.title}
                   title={cat.title}

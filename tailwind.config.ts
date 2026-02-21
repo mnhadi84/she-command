@@ -64,6 +64,10 @@ export default {
         safe: "hsl(var(--status-safe))",
         unsafe: "hsl(var(--status-unsafe))",
         na: "hsl(var(--status-na))",
+        "safety-orange": {
+          DEFAULT: "hsl(var(--safety-orange))",
+          foreground: "hsl(var(--safety-orange-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -54,6 +54,8 @@
     --status-safe: 122 38% 45%;
     --status-unsafe: 355 78% 56%;
     --status-na: 220 15% 40%;
+    --safety-orange: 25 95% 53%;
+    --safety-orange-foreground: 0 0% 100%;
   }
 }
 
@@ -124,6 +126,10 @@
   .animate-border-glow-red {
     box-shadow: 0 0 12px hsla(var(--glow-red) / 0.4), 0 0 30px hsla(var(--glow-red) / 0.15);
     border-color: hsla(var(--glow-red) / 0.5);
+  }
+
+  .glow-orange {
+    box-shadow: 0 0 20px hsla(var(--safety-orange) / 0.3), 0 0 60px hsla(var(--safety-orange) / 0.1);
   }
 
   .clamp-heading {

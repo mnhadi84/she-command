@@ -20,6 +20,8 @@ import InspectionCard from "@/components/InspectionCard";
 import type { UnsafeDetails } from "@/components/InspectionCard";
 import EIASection from "@/components/EIASection";
 import BottomNav from "@/components/BottomNav";
+import WorkZoneSelector from "@/components/WorkZoneSelector";
+import type { WorkZone } from "@/components/WorkZoneSelector";
 
 type Status = "safe" | "unsafe" | "na" | null;
 
@@ -37,6 +39,18 @@ const categories = [
 const STORAGE_KEY = "she-analytics-statuses";
 const DETAILS_KEY = "she-analytics-details";
 const EIA_KEY = "she-analytics-eia";
+const ZONE_KEY = "she-analytics-zone";
+
+// Categories relevant to each zone (ground-level items hidden for elevated zones, etc.)
+const zoneRelevantCategories: Record<string, string[]> = {
+  Tunnel: ["Hot Work", "Chemical Handling", "Manual Handling Work", "Housekeeping"],
+  "Underground Station": ["Hot Work", "Chemical Handling", "Manual Handling Work", "Housekeeping", "Heavy Lifting Work"],
+  "Ground Level": ["Excavation Work", "Heavy Lifting Work", "Manual Handling Work", "Housekeeping", "Hot Work", "Chemical Handling"],
+  Elevated: ["Working at Height", "Scaffolding & Temp Structures", "Heavy Lifting Work", "Hot Work", "Manual Handling Work", "Housekeeping"],
+  Viaduct: ["Working at Height", "Scaffolding & Temp Structures", "Heavy Lifting Work", "Hot Work", "Housekeeping"],
+  "Elevated Station": ["Working at Height", "Scaffolding & Temp Structures", "Heavy Lifting Work", "Hot Work", "Manual Handling Work", "Housekeeping"],
+  "Highrise Building": ["Working at Height", "Scaffolding & Temp Structures", "Heavy Lifting Work", "Hot Work", "Manual Handling Work", "Housekeeping", "Chemical Handling"],
+};
 
 const emptyDetails = (): UnsafeDetails => ({ severity: "", description: "", assignTo: "" });
 
@@ -75,12 +89,24 @@ const Index = () => {
   const [synced, setSynced] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [workZone, setWorkZone] = useState<WorkZone>(() => {
+    try {
+      return (localStorage.getItem(ZONE_KEY) as WorkZone) || "";
+    } catch {
+      return "";
+    }
+  });
 
-  const totalInspected = categories.filter((c) => statuses[c.title] === "safe" || statuses[c.title] === "unsafe").length;
-  const openIssues = categories.filter((c) => statuses[c.title] === "unsafe").length;
-  const naCategories = categories.filter((c) => statuses[c.title] === "na").length;
+  // Filter categories based on work zone context
+  const contextCategories = workZone && zoneRelevantCategories[workZone]
+    ? categories.filter((c) => zoneRelevantCategories[workZone].includes(c.title))
+    : categories;
 
-  const filteredCategories = categories.filter((c) =>
+  const totalInspected = contextCategories.filter((c) => statuses[c.title] === "safe" || statuses[c.title] === "unsafe").length;
+  const openIssues = contextCategories.filter((c) => statuses[c.title] === "unsafe").length;
+  const naCategories = contextCategories.filter((c) => statuses[c.title] === "na").length;
+
+  const filteredCategories = contextCategories.filter((c) =>
     c.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -95,6 +121,10 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem(EIA_KEY, JSON.stringify(eiaValues));
   }, [eiaValues]);
+
+  useEffect(() => {
+    localStorage.setItem(ZONE_KEY, workZone);
+  }, [workZone]);
 
   const handleEIAChange = (key: string, value: string) => {
     setEIAValues((prev) => ({ ...prev, [key]: value }));
@@ -162,6 +192,8 @@ const Index = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
+
+          <WorkZoneSelector value={workZone} onChange={setWorkZone} />
 
           <HeroStatus />
 

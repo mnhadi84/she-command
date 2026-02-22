@@ -19,6 +19,9 @@ import DailySummary from "@/components/DailySummary";
 import InspectionCard from "@/components/InspectionCard";
 import type { UnsafeDetails } from "@/components/InspectionCard";
 import EIASection from "@/components/EIASection";
+import ESGSection from "@/components/ESGSection";
+import type { ESGValues } from "@/components/ESGSection";
+import { emptyESG } from "@/components/ESGSection";
 import BottomNav from "@/components/BottomNav";
 import WorkZoneSelector from "@/components/WorkZoneSelector";
 import type { WorkZone } from "@/components/WorkZoneSelector";
@@ -40,6 +43,7 @@ const STORAGE_KEY = "she-analytics-statuses";
 const DETAILS_KEY = "she-analytics-details";
 const EIA_KEY = "she-analytics-eia";
 const ZONE_KEY = "she-analytics-zone";
+const ESG_KEY = "she-analytics-esg";
 
 // Categories relevant to each zone (ground-level items hidden for elevated zones, etc.)
 const zoneRelevantCategories: Record<string, string[]> = {
@@ -81,10 +85,20 @@ const loadEIA = (): Record<string, string> => {
   }
 };
 
+const loadESG = (): ESGValues => {
+  try {
+    const raw = localStorage.getItem(ESG_KEY);
+    return raw ? { ...emptyESG(), ...JSON.parse(raw) } : emptyESG();
+  } catch {
+    return emptyESG();
+  }
+};
+
 const Index = () => {
   const [statuses, setStatuses] = useState<Record<string, Status>>(loadStatuses);
   const [details, setDetails] = useState<Record<string, UnsafeDetails>>(loadDetails);
   const [eiaValues, setEIAValues] = useState<Record<string, string>>(loadEIA);
+  const [esgValues, setESGValues] = useState<ESGValues>(loadESG);
   const [syncing, setSyncing] = useState(false);
   const [synced, setSynced] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
@@ -123,11 +137,19 @@ const Index = () => {
   }, [eiaValues]);
 
   useEffect(() => {
+    localStorage.setItem(ESG_KEY, JSON.stringify(esgValues));
+  }, [esgValues]);
+
+  useEffect(() => {
     localStorage.setItem(ZONE_KEY, workZone);
   }, [workZone]);
 
   const handleEIAChange = (key: string, value: string) => {
     setEIAValues((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleESGChange = (key: keyof ESGValues, value: string) => {
+    setESGValues((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleStatusChange = (title: string, status: Status) => {
@@ -219,6 +241,8 @@ const Index = () => {
           </div>
 
           <EIASection values={eiaValues} onChange={handleEIAChange} />
+
+          <ESGSection values={esgValues} onChange={handleESGChange} workZone={workZone} />
 
           {/* Save Draft */}
           <button

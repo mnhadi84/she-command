@@ -1,4 +1,4 @@
-import { MapPin, AlertTriangle, Wind, ShieldAlert, HardHat, CheckCircle2 } from "lucide-react";
+import { MapPin, AlertTriangle, Wind, ShieldAlert, HardHat, CheckCircle2, ArrowUpDown } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -78,6 +78,109 @@ const workZones: WorkZone[] = [
   "Highrise Building",
 ];
 
+// Elevation data relative to site datum (0.000m = Ground Level)
+const zoneElevation: Record<string, { elevation: number; label: string }> = {
+  Tunnel: { elevation: -25, label: "-25.0m" },
+  "Underground Station": { elevation: -15, label: "-15.0m" },
+  "Ground Level": { elevation: 0, label: "±0.0m" },
+  Elevated: { elevation: 12, label: "+12.0m" },
+  Viaduct: { elevation: 18, label: "+18.0m" },
+  "Elevated Station": { elevation: 22, label: "+22.0m" },
+  "Highrise Building": { elevation: 45, label: "+45.0m" },
+};
+
+// All zones ordered by elevation for the Z-axis diagram
+const elevationOrder: WorkZone[] = [
+  "Highrise Building",
+  "Elevated Station",
+  "Viaduct",
+  "Elevated",
+  "Ground Level",
+  "Underground Station",
+  "Tunnel",
+];
+
+const ZAxisIndicator = ({ activeZone }: { activeZone: WorkZone }) => {
+  return (
+    <div className="glass-strong rounded-xl p-3 border border-accent/10">
+      <div className="flex items-center gap-2 mb-3">
+        <ArrowUpDown className="h-3.5 w-3.5 text-accent" />
+        <span className="clamp-body text-muted-foreground uppercase tracking-wider font-semibold">
+          Z-Axis · Site Datum ±0.0m
+        </span>
+      </div>
+      <div className="relative flex flex-col gap-0.5">
+        {elevationOrder.map((zone) => {
+          const data = zoneElevation[zone];
+          const isActive = zone === activeZone;
+          const isAbove = data.elevation > 0;
+          const isBelow = data.elevation < 0;
+
+          return (
+            <div
+              key={zone}
+              className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 transition-all duration-500 ${
+                isActive
+                  ? "glass border border-accent/40 shadow-[0_0_12px_hsla(var(--glow-blue)/0.15)]"
+                  : "border border-transparent"
+              }`}
+            >
+              {/* Elevation label */}
+              <span
+                className={`font-display text-xs font-bold tabular-nums w-14 text-right ${
+                  isActive
+                    ? "text-accent"
+                    : isAbove
+                    ? "text-safety-orange/60"
+                    : isBelow
+                    ? "text-accent/40"
+                    : "text-muted-foreground/60"
+                }`}
+              >
+                {data.label}
+              </span>
+
+              {/* Vertical line marker */}
+              <div className="relative flex items-center w-4 justify-center">
+                <div
+                  className={`h-6 w-px ${
+                    data.elevation === 0 ? "bg-muted-foreground/60" : "bg-border/40"
+                  }`}
+                />
+                <div
+                  className={`absolute h-2 w-2 rounded-full transition-all duration-500 ${
+                    isActive
+                      ? "bg-accent scale-125 shadow-[0_0_8px_hsla(var(--glow-blue)/0.4)]"
+                      : data.elevation === 0
+                      ? "bg-muted-foreground/50 h-1.5 w-1.5"
+                      : "bg-border/50 h-1 w-1"
+                  }`}
+                />
+              </div>
+
+              {/* Zone name */}
+              <span
+                className={`clamp-body truncate transition-colors duration-300 ${
+                  isActive ? "text-foreground font-semibold" : "text-muted-foreground/50"
+                }`}
+              >
+                {zone}
+              </span>
+
+              {/* Datum label */}
+              {data.elevation === 0 && (
+                <span className="clamp-body text-muted-foreground/40 font-display uppercase tracking-wider ml-auto">
+                  Datum
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 interface WorkZoneSelectorProps {
   value: WorkZone;
   onChange: (zone: WorkZone) => void;
@@ -115,6 +218,9 @@ const WorkZoneSelector = ({ value, onChange }: WorkZoneSelectorProps) => {
             </Select>
           </div>
         </div>
+
+        {/* Z-Axis Elevation Indicator */}
+        <ZAxisIndicator activeZone={value} />
 
         {value && (
           <div className="space-y-3 animate-in slide-in-from-top-2 fade-in duration-300">

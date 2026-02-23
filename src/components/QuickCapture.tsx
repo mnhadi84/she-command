@@ -16,6 +16,29 @@ const mockResults: DetectedItem[] = [
   { label: "Material Type: Grade 40 Concrete", confidence: 91, icon: Package, status: "pass" },
 ];
 
+const AIStatusLight = ({ phase }: { phase: AnalysisPhase }) => {
+  const isActive = phase === "scanning" || phase === "detecting";
+  const isDone = phase === "complete";
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="relative flex h-2.5 w-2.5">
+        {isActive && (
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75" />
+        )}
+        <span
+          className={`relative inline-flex rounded-full h-2.5 w-2.5 transition-colors duration-500 ${
+            isActive ? "bg-secondary" : isDone ? "bg-secondary/60" : "bg-muted-foreground/40"
+          }`}
+        />
+      </span>
+      <span className="clamp-body text-muted-foreground uppercase tracking-wider font-medium">
+        {isActive ? "Processing" : isDone ? "Ready" : "Standby"}
+      </span>
+    </div>
+  );
+};
+
 const QuickCapture = () => {
   const [phase, setPhase] = useState<AnalysisPhase>("idle");
   const [results, setResults] = useState<DetectedItem[]>([]);
@@ -37,6 +60,14 @@ const QuickCapture = () => {
 
   return (
     <div className="space-y-3">
+      {/* AI Status Header */}
+      <div className="flex items-center justify-between">
+        <span className="font-display clamp-heading font-semibold uppercase tracking-wider text-muted-foreground">
+          AI Camera
+        </span>
+        <AIStatusLight phase={phase} />
+      </div>
+
       {/* Capture Button */}
       <button
         onClick={phase === "complete" ? reset : handleCapture}

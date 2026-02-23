@@ -318,9 +318,11 @@ const Index = () => {
             <EIASection values={eiaValues} onChange={handleEIAChange} />
           </InsightsSection>
 
-          {/* 7. Insights — ESG (collapsed) */}
-          <InsightsSection title="Sustainability & ESG Insights">
-            <ESGSection values={esgValues} onChange={handleESGChange} workZone={workZone} />
+          {/* 7. ESG — visible but subtle, auto-open */}
+          <InsightsSection title="Sustainability & ESG" defaultOpen={true}>
+            <div className="opacity-90">
+              <ESGSection values={esgValues} onChange={handleESGChange} workZone={workZone} />
+            </div>
           </InsightsSection>
 
           {/* Save Draft */}

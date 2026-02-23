@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Camera, ScanLine, ShieldCheck, Wrench, Package, CheckCircle2, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Camera, ScanLine, ShieldCheck, Wrench, Package, CheckCircle2, Loader2, ChevronRight } from "lucide-react";
 
 type AnalysisPhase = "idle" | "scanning" | "detecting" | "complete";
 
@@ -8,12 +9,13 @@ interface DetectedItem {
   confidence: number;
   icon: React.ElementType;
   status: "pass" | "warning" | "fail";
+  metricKey: string;
 }
 
 const mockResults: DetectedItem[] = [
-  { label: "PPE Compliance", confidence: 96, icon: ShieldCheck, status: "pass" },
-  { label: "Machine Health", confidence: 82, icon: Wrench, status: "warning" },
-  { label: "Material Type: Grade 40 Concrete", confidence: 91, icon: Package, status: "pass" },
+  { label: "PPE Compliance", confidence: 96, icon: ShieldCheck, status: "pass", metricKey: "ppe" },
+  { label: "Machine Health", confidence: 82, icon: Wrench, status: "warning", metricKey: "machine" },
+  { label: "Material Type: Grade 40 Concrete", confidence: 91, icon: Package, status: "pass", metricKey: "material" },
 ];
 
 const AIStatusLight = ({ phase }: { phase: AnalysisPhase }) => {
@@ -40,6 +42,7 @@ const AIStatusLight = ({ phase }: { phase: AnalysisPhase }) => {
 };
 
 const QuickCapture = () => {
+  const navigate = useNavigate();
   const [phase, setPhase] = useState<AnalysisPhase>("idle");
   const [results, setResults] = useState<DetectedItem[]>([]);
 
@@ -146,23 +149,25 @@ const QuickCapture = () => {
                 ? "border-safety-orange/20"
                 : "border-primary/20";
             return (
-              <div
+              <button
                 key={i}
-                className={`glass rounded-xl p-3.5 flex items-center gap-3 border ${borderColor} transition-all duration-300`}
+                onClick={() => navigate(`/predictive?metric=${item.metricKey}`)}
+                className={`glass rounded-xl p-3.5 flex items-center gap-3 border ${borderColor} hover:border-accent/30 transition-all duration-300 w-full text-left group`}
               >
                 <div className="w-9 h-9 rounded-lg glass-strong flex items-center justify-center border border-border/30">
                   <Icon className={`h-4 w-4 ${statusColor}`} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="clamp-body font-semibold text-foreground">{item.label}</p>
+                  <p className="clamp-body text-muted-foreground/70 text-[10px] uppercase tracking-wider">Tap for trend →</p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className={`font-display text-sm font-bold ${statusColor}`}>
                     {item.confidence}%
                   </span>
-                  <CheckCircle2 className={`h-3.5 w-3.5 ${statusColor}`} />
+                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

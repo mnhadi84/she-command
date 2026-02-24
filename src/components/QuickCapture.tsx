@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, ScanLine, ShieldCheck, Wrench, Package, CheckCircle2, Loader2, ChevronRight } from "lucide-react";
+import { Camera, ScanLine, ShieldCheck, Wrench, Package, CheckCircle2, Loader2, ChevronRight, TrendingUp, AlertTriangle, ClipboardCheck } from "lucide-react";
 
 type AnalysisPhase = "idle" | "scanning" | "detecting" | "complete";
 
@@ -10,12 +10,15 @@ interface DetectedItem {
   icon: React.ElementType;
   status: "pass" | "warning" | "fail";
   metricKey: string;
+  riskForecast: string;
+  riskDelta: number;
+  recommendation: string;
 }
 
 const mockResults: DetectedItem[] = [
-  { label: "PPE Compliance", confidence: 96, icon: ShieldCheck, status: "pass", metricKey: "ppe" },
-  { label: "Machine Health", confidence: 82, icon: Wrench, status: "warning", metricKey: "machine" },
-  { label: "Material Type: Grade 40 Concrete", confidence: 91, icon: Package, status: "pass", metricKey: "material" },
+  { label: "PPE Compliance", confidence: 96, icon: ShieldCheck, status: "pass", metricKey: "ppe", riskForecast: "Trip hazard probability +15% due to current rainfall levels", riskDelta: 15, recommendation: "ASCF 4.2: Deploy slip-resistant matting at Zone B entry points and increase supervisor walkthroughs between 14:00–16:00." },
+  { label: "Machine Health", confidence: 82, icon: Wrench, status: "warning", metricKey: "machine", riskForecast: "Hydraulic failure risk +22% — vibration anomaly detected", riskDelta: 22, recommendation: "ASCF 6.1: Isolate Crane #3 for immediate hydraulic inspection. Schedule predictive maintenance within 4 hours." },
+  { label: "Material Type: Grade 40 Concrete", confidence: 91, icon: Package, status: "pass", metricKey: "material", riskForecast: "Curing integrity risk +8% due to ambient humidity drop", riskDelta: 8, recommendation: "ASCF 5.3: Apply curing compound to freshly poured slabs and verify moisture retention at 2-hour intervals." },
 ];
 
 const AIStatusLight = ({ phase }: { phase: AnalysisPhase }) => {
@@ -133,7 +136,7 @@ const QuickCapture = () => {
 
       {/* Results */}
       {phase === "complete" && results.length > 0 && (
-        <div className="space-y-2 animate-in slide-in-from-bottom-3 fade-in duration-500">
+        <div className="space-y-3 animate-in slide-in-from-bottom-3 fade-in duration-500">
           {results.map((item, i) => {
             const Icon = item.icon;
             const statusColor =
@@ -148,26 +151,55 @@ const QuickCapture = () => {
                 : item.status === "warning"
                 ? "border-safety-orange/20"
                 : "border-primary/20";
+            const riskColor = item.riskDelta >= 20 ? "text-primary" : item.riskDelta >= 12 ? "text-safety-orange" : "text-secondary";
             return (
-              <button
-                key={i}
-                onClick={() => navigate(`/predictive?metric=${item.metricKey}`)}
-                className={`glass rounded-xl p-3.5 flex items-center gap-3 border ${borderColor} hover:border-accent/30 transition-all duration-300 w-full text-left group`}
-              >
-                <div className="w-9 h-9 rounded-lg glass-strong flex items-center justify-center border border-border/30">
-                  <Icon className={`h-4 w-4 ${statusColor}`} />
+              <div key={i} className={`glass rounded-xl border ${borderColor} overflow-hidden`}>
+                {/* Detection Header — clickable to trend page */}
+                <button
+                  onClick={() => navigate(`/predictive?metric=${item.metricKey}`)}
+                  className="w-full p-3.5 flex items-center gap-3 hover:bg-accent/5 transition-all duration-300 text-left group"
+                >
+                  <div className="w-9 h-9 rounded-lg glass-strong flex items-center justify-center border border-border/30 shrink-0">
+                    <Icon className={`h-4 w-4 ${statusColor}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="clamp-body font-semibold text-foreground">{item.label}</p>
+                    <p className="clamp-body text-muted-foreground/70 text-[10px] uppercase tracking-wider">Tap for 7-day trend →</p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`font-display text-sm font-bold ${statusColor}`}>
+                      {item.confidence}%
+                    </span>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
+                  </div>
+                </button>
+
+                {/* Predictive Risk Forecast */}
+                <div className="px-3.5 pb-2">
+                  <div className="rounded-lg bg-muted/40 border border-border/20 p-2.5 flex items-start gap-2.5">
+                    <TrendingUp className={`h-3.5 w-3.5 mt-0.5 shrink-0 ${riskColor}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="clamp-body text-muted-foreground/60 uppercase tracking-wider font-medium mb-0.5 text-[9px]">Predictive Risk Forecast</p>
+                      <p className="clamp-body text-foreground/80 leading-snug">{item.riskForecast}</p>
+                      <div className="mt-1.5 flex items-center gap-1.5">
+                        <AlertTriangle className={`h-3 w-3 ${riskColor}`} />
+                        <span className={`font-display text-[11px] font-bold ${riskColor}`}>+{item.riskDelta}% risk increase</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="clamp-body font-semibold text-foreground">{item.label}</p>
-                  <p className="clamp-body text-muted-foreground/70 text-[10px] uppercase tracking-wider">Tap for trend →</p>
+
+                {/* ASCF Recommendation */}
+                <div className="px-3.5 pb-3">
+                  <div className="rounded-lg bg-accent/5 border border-accent/15 p-2.5 flex items-start gap-2.5">
+                    <ClipboardCheck className="h-3.5 w-3.5 mt-0.5 shrink-0 text-accent" />
+                    <div className="flex-1 min-w-0">
+                      <p className="clamp-body text-accent/60 uppercase tracking-wider font-medium mb-0.5 text-[9px]">ASCF Recommendation</p>
+                      <p className="clamp-body text-foreground/80 leading-snug">{item.recommendation}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className={`font-display text-sm font-bold ${statusColor}`}>
-                    {item.confidence}%
-                  </span>
-                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
-                </div>
-              </button>
+              </div>
             );
           })}
         </div>

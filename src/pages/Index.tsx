@@ -17,6 +17,9 @@ import {
   Info,
   X,
   FileDown,
+  Volume2,
+  Thermometer,
+  ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -43,7 +46,8 @@ const categories = [
   { title: "Heavy Lifting Work", icon: Weight },
   { title: "Chemical Handling", icon: FlaskConical },
   { title: "Manual Handling Work", icon: HandMetal },
-  { title: "Housekeeping", icon: Sparkles },
+  { title: "Acoustic / Noise", icon: Volume2 },
+  { title: "Heat Stress", icon: Thermometer },
 ];
 
 const STORAGE_KEY = "she-analytics-statuses";
@@ -51,6 +55,8 @@ const DETAILS_KEY = "she-analytics-details";
 const EIA_KEY = "she-analytics-eia";
 const ZONE_KEY = "she-analytics-zone";
 const ESG_KEY = "she-analytics-esg";
+const NOISE_SITE_KEY = "she-analytics-noise-site";
+const AMBIENT_TEMP_KEY = "she-analytics-ambient-temp";
 
 const zoneRelevantCategories: Record<string, string[]> = {
   Tunnel: ["Hot Work", "Chemical Handling", "Manual Handling Work", "Housekeeping"],
@@ -173,6 +179,12 @@ const Index = () => {
   const [workZone, setWorkZone] = useState<WorkZone>(() => {
     try { return (localStorage.getItem(ZONE_KEY) as WorkZone) || ""; } catch { return ""; }
   });
+  const [noiseSiteType, setNoiseSiteType] = useState<string>(() => {
+    try { return localStorage.getItem(NOISE_SITE_KEY) || ""; } catch { return ""; }
+  });
+  const [ambientTemp, setAmbientTemp] = useState<string>(() => {
+    try { return localStorage.getItem(AMBIENT_TEMP_KEY) || ""; } catch { return ""; }
+  });
 
   const contextCategories = workZone && zoneRelevantCategories[workZone]
     ? categories.filter((c) => zoneRelevantCategories[workZone].includes(c.title))
@@ -209,6 +221,8 @@ const Index = () => {
   useEffect(() => { localStorage.setItem(EIA_KEY, JSON.stringify(eiaValues)); }, [eiaValues]);
   useEffect(() => { localStorage.setItem(ESG_KEY, JSON.stringify(esgValues)); }, [esgValues]);
   useEffect(() => { localStorage.setItem(ZONE_KEY, workZone); }, [workZone]);
+  useEffect(() => { localStorage.setItem(NOISE_SITE_KEY, noiseSiteType); }, [noiseSiteType]);
+  useEffect(() => { localStorage.setItem(AMBIENT_TEMP_KEY, ambientTemp); }, [ambientTemp]);
 
   const handleEIAChange = (key: string, value: string) => setEIAValues((prev) => ({ ...prev, [key]: value }));
   const handleESGChange = (key: keyof ESGValues, value: string) => setESGValues((prev) => ({ ...prev, [key]: value }));
@@ -299,7 +313,7 @@ const Index = () => {
                     onToggle={() => toggleExpanded(cat.title)}
                   />
                   {expandedCard === cat.title && (
-                    <div className="mt-2 animate-in slide-in-from-top-2 fade-in duration-300">
+                    <div className="mt-2 animate-in slide-in-from-top-2 fade-in duration-300 space-y-3">
                       <InspectionCard
                         title={cat.title}
                         icon={cat.icon}
@@ -310,6 +324,75 @@ const Index = () => {
                         onUnsafeDetailsChange={(d) => handleDetailsChange(cat.title, d)}
                         showValidation={showValidation}
                       />
+
+                      {/* Cat 8: Acoustic/Noise — conditional sub-menu on unsafe */}
+                      {cat.title === "Acoustic / Noise" && statuses[cat.title] === "unsafe" && (
+                        <div className="glass rounded-xl p-4 border border-primary/20 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                          <p className="font-display clamp-body font-semibold uppercase tracking-wider text-primary">
+                            Site Type — Control Selection
+                          </p>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setNoiseSiteType("enclosed")}
+                              className={`flex-1 rounded-lg px-3 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${
+                                noiseSiteType === "enclosed"
+                                  ? "bg-accent/20 border-accent/40 text-accent"
+                                  : "glass border-border/30 text-muted-foreground hover:border-accent/20"
+                              }`}
+                            >
+                              Enclosed / Confined
+                            </button>
+                            <button
+                              onClick={() => setNoiseSiteType("open")}
+                              className={`flex-1 rounded-lg px-3 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${
+                                noiseSiteType === "open"
+                                  ? "bg-accent/20 border-accent/40 text-accent"
+                                  : "glass border-border/30 text-muted-foreground hover:border-accent/20"
+                              }`}
+                            >
+                              Open / Outdoor
+                            </button>
+                          </div>
+                          {noiseSiteType === "enclosed" && (
+                            <div className="glass rounded-lg p-3 border border-accent/20 bg-accent/5">
+                              <p className="clamp-body text-accent font-semibold">🔧 Engineering Control Required</p>
+                              <p className="clamp-body text-muted-foreground mt-1">Source Damping &amp; Acoustic Enclosure.</p>
+                            </div>
+                          )}
+                          {noiseSiteType === "open" && (
+                            <div className="glass rounded-lg p-3 border border-accent/20 bg-accent/5">
+                              <p className="clamp-body text-accent font-semibold">📋 Administrative Control Required</p>
+                              <p className="clamp-body text-muted-foreground mt-1">15m Exclusion Zone &amp; Job Rotation.</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Cat 9: Heat Stress — ambient temperature input */}
+                      {cat.title === "Heat Stress" && (
+                        <div className="glass rounded-xl p-4 border border-border/20 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                          <label className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground block">
+                            Ambient Temperature (°C)
+                          </label>
+                          <input
+                            type="number"
+                            placeholder="e.g. 38"
+                            value={ambientTemp}
+                            onChange={(e) => setAmbientTemp(e.target.value)}
+                            className="w-full rounded-lg glass border border-border/40 px-4 py-3 clamp-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/40 bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          />
+                          {parseFloat(ambientTemp) > 37 && (
+                            <div className="rounded-lg p-3 border border-destructive/40 bg-destructive/10 animate-in fade-in duration-200">
+                              <p className="clamp-body font-bold text-destructive uppercase tracking-wider">
+                                ⚠️ HI-PO RISK
+                              </p>
+                              <p className="clamp-body text-destructive/90 mt-1">
+                                Mandatory 15-min cooling break every hour.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -358,6 +441,11 @@ const Index = () => {
                   return `  ${c.title}: ${label}${extra}`;
                 }),
                 "",
+                "── CONTEXT SELECTIONS ──",
+                `Noise Site Type: ${noiseSiteType === "enclosed" ? "Enclosed / Confined" : noiseSiteType === "open" ? "Open / Outdoor" : "Not Set"}`,
+                `Ambient Temperature: ${ambientTemp ? ambientTemp + "°C" : "Not Recorded"}`,
+                parseFloat(ambientTemp) > 37 ? "⚠️ HI-PO RISK: Mandatory 15-min cooling break every hour." : "",
+                "",
                 "── METHODOLOGY ──",
                 "Logic powered by ASCF (Awlaqi Safety Culture Framework)",
                 "& Predictive Context-Aware Algorithms.",
@@ -379,20 +467,28 @@ const Index = () => {
             Export Report
           </button>
 
-          {/* Save Draft */}
-          <button
-            onClick={handleSaveDraft}
-            disabled={syncing}
-            className="w-full glass rounded-xl py-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider text-accent border border-accent/20 hover:border-accent/40 transition-all duration-300 disabled:opacity-70"
-          >
-            {syncing ? (
-              <><CloudUpload className="h-5 w-5 animate-pulse" />Syncing to Cloud...</>
-            ) : synced ? (
-              <><Check className="h-5 w-5 text-secondary" /><span className="text-secondary">Draft Saved!</span></>
-            ) : (
-              <><Save className="h-5 w-5" />Save Draft</>
-            )}
-          </button>
+          {/* Save Draft + Security Badge */}
+          <div className="space-y-2">
+            <button
+              onClick={handleSaveDraft}
+              disabled={syncing}
+              className="w-full glass rounded-xl py-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider text-accent border border-accent/20 hover:border-accent/40 transition-all duration-300 disabled:opacity-70"
+            >
+              {syncing ? (
+                <><CloudUpload className="h-5 w-5 animate-pulse" />Syncing to Cloud...</>
+              ) : synced ? (
+                <><Check className="h-5 w-5 text-secondary" /><span className="text-secondary">Draft Saved!</span></>
+              ) : (
+                <><Save className="h-5 w-5" />Save Draft</>
+              )}
+            </button>
+            <div className="flex items-center justify-end gap-1.5 pr-1">
+              <ShieldCheck className="h-3.5 w-3.5 text-secondary/70" />
+              <span className="text-[10px] font-medium uppercase tracking-wider text-secondary/70">
+                Secure Edge Processing — Data de-identified before sync
+              </span>
+            </div>
+          </div>
 
           <p className="text-center clamp-body text-muted-foreground/60 tracking-wide pt-2">
             SHE-Analytics v2.0 &nbsp;|&nbsp; AI-Powered &nbsp;|&nbsp; Mr. Hadi

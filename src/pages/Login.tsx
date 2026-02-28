@@ -71,7 +71,7 @@ const Login = () => {
     "w-full bg-transparent border-0 border-b border-white/20 pb-2.5 pt-1.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[hsl(120,45%,45%)] transition-colors";
 
   return (
-    <div className="relative min-h-screen flex items-start justify-center pt-[8vh] px-4 overflow-hidden">
+    <div className="relative h-screen flex items-center justify-center px-4 overflow-hidden">
       {/* NEOM Background */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -88,21 +88,21 @@ const Login = () => {
         <img
           src={logo}
           alt="SHE-Analytics Logo"
-          className="w-21 h-21 object-contain mb-1 select-none drop-shadow-[0_0_30px_rgba(0,0,0,0.6)]"
+          className="w-16 h-16 object-contain mb-1 select-none drop-shadow-[0_0_30px_rgba(0,0,0,0.6)]"
           draggable={false}
           style={{ mixBlendMode: "multiply", filter: "brightness(1.1)" }}
         />
 
         {/* Brand Text */}
-        <h1 className="font-display text-[1.65rem] font-bold tracking-[0.18em] text-[hsl(210,60%,55%)] mb-0.5 drop-shadow-lg">
+        <h1 className="font-display text-xl font-bold tracking-[0.18em] text-[hsl(210,60%,55%)] mb-0 drop-shadow-lg">
           SHE-ANALYTICS
         </h1>
-        <p className="text-xs tracking-[0.3em] text-[hsl(120,50%,50%)] font-semibold mb-10 drop-shadow-md">
+        <p className="text-[10px] tracking-[0.3em] text-[hsl(120,50%,50%)] font-semibold mb-5 drop-shadow-md">
           INSPECTION INTELLIGENCE
         </p>
 
         {/* Login Form */}
-        <form onSubmit={handleLogin} className="w-full space-y-5 px-1">
+        <form onSubmit={handleLogin} className="w-full space-y-3.5 px-1">
           <input
             type="text"
             value={staffId}
@@ -138,7 +138,7 @@ const Login = () => {
           </div>
 
           {/* PPE Checkbox */}
-          <div className="flex items-start gap-3 pt-1">
+          <div className="flex items-start gap-3 pt-0.5">
             <Checkbox
               id="ppe"
               checked={ppeConfirmed}
@@ -153,7 +153,7 @@ const Login = () => {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full py-3 rounded-lg bg-[hsl(120,45%,40%)] hover:bg-[hsl(120,45%,45%)] text-white font-display font-semibold text-sm tracking-[0.2em] uppercase transition-all duration-200 hover:shadow-[0_0_25px_rgba(60,160,60,0.35)]"
+            className="w-full py-2.5 rounded-lg bg-[hsl(120,45%,40%)] hover:bg-[hsl(120,45%,45%)] text-white font-display font-semibold text-sm tracking-[0.2em] uppercase transition-all duration-200 hover:shadow-[0_0_25px_rgba(60,160,60,0.35)]"
           >
             Secure Login
           </button>
@@ -162,7 +162,7 @@ const Login = () => {
           <button
             type="button"
             onClick={() => setShowRegister(true)}
-            className="w-full py-3 rounded-lg border border-white/20 hover:border-white/40 bg-transparent text-white/70 hover:text-white font-display font-medium text-sm tracking-[0.15em] uppercase transition-all duration-200 flex items-center justify-center gap-2"
+            className="w-full py-2.5 rounded-lg border border-white/20 hover:border-white/40 bg-transparent text-white/70 hover:text-white font-display font-medium text-sm tracking-[0.15em] uppercase transition-all duration-200 flex items-center justify-center gap-2"
           >
             <UserPlus className="h-4 w-4" />
             Register
@@ -170,7 +170,7 @@ const Login = () => {
         </form>
 
         {/* Security Footer */}
-        <div className="flex items-center gap-1.5 mt-12 opacity-40">
+        <div className="flex items-center gap-1.5 mt-6 opacity-40">
           <ShieldCheck className="h-3 w-3 text-white/60" />
           <p className="text-[10px] text-white/60 tracking-wide">
             Verified by ASCF Framework Logic | Secure Edge-Cloud Sync

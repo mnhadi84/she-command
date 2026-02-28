@@ -88,7 +88,7 @@ const Login = () => {
         <img
           src={logo}
           alt="SHE-Analytics Logo"
-          className="w-16 h-16 object-contain mb-1 select-none drop-shadow-[0_0_30px_rgba(0,0,0,0.6)]"
+          className="w-[5.2rem] h-[5.2rem] object-contain mb-1 select-none drop-shadow-[0_0_30px_rgba(0,0,0,0.6)]"
           draggable={false}
           style={{ mixBlendMode: "multiply", filter: "brightness(1.1)" }}
         />

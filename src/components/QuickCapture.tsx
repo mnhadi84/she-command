@@ -1,25 +1,16 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, ScanLine, ShieldCheck, Zap, Cable, CheckCircle2, Loader2, ChevronRight, TrendingUp, AlertTriangle, ClipboardCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
+import "@lovable.dev/cloud-auth-js/styles.css";
+import { preparePhoto } from "@/lib/camera-photo";
+import { fallback, parseFindings, type AnalysisResult, type Finding } from "../../supabase/functions/analyze-site-photo/contract";
 
 type AnalysisPhase = "idle" | "scanning" | "detecting" | "complete";
 
-interface DetectedItem {
-  label: string;
-  confidence: number;
-  icon: React.ElementType;
-  status: "pass" | "warning" | "fail";
-  metricKey: string;
-  riskForecast: string;
-  riskDelta: number;
-  recommendation: string;
-}
-
-const mockResults: DetectedItem[] = [
-  { label: "PPE & Fall Arrest Compliance", confidence: 96, icon: ShieldCheck, status: "pass", metricKey: "ppe", riskForecast: "Slip/trip probability +12% during afternoon squall", riskDelta: 12, recommendation: "SOP 2.1 — Height Safety: Verify 100% tie-off on vertical lifelines and ensure helmet chin straps are buckled on ladders and skylifts." },
-  { label: "Solar DC & EV Electrical Isolation (LOTO)", confidence: 84, icon: Zap, status: "warning", metricKey: "electrical", riskForecast: "Stored energy discharge risk +24% — unverified DC isolator tag", riskDelta: 24, recommendation: "SOP 3.4 — Stored Energy Isolation: Verify LOTO lockout tag on TESB solar string isolator and Charge N Go feeder breaker before contact." },
-  { label: "Fiber Workstation & Shard Containment", confidence: 92, icon: Cable, status: "pass", metricKey: "fiber", riskForecast: "Cornea/puncture hazard probability +5% in tight splicing van", riskDelta: 5, recommendation: "SOP 7.2 — Optical Safety: Dedicated fiber cleave shard container verified on splicing mat. Ensure optical laser source is deactivated prior to inspection." },
-];
+const findingIcons = { ppe: ShieldCheck, electrical: Zap, fiber: Cable };
 
 const AIStatusLight = ({ phase }: { phase: AnalysisPhase }) => {
   const isActive = phase === "scanning" || phase === "detecting";
@@ -47,10 +38,30 @@ const AIStatusLight = ({ phase }: { phase: AnalysisPhase }) => {
 const QuickCapture = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState<AnalysisPhase>("idle");
-  const [results, setResults] = useState<DetectedItem[]>([]);
+  const [results, setResults] = useState<Finding[]>([]);
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
+  const [signInError, setSignInError] = useState("");
+  const requestRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => { if (active) setSignedIn(Boolean(data.session)); });
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => setSignedIn(Boolean(session)));
+    return () => { active = false; data.subscription.unsubscribe(); requestRef.current?.abort(); };
+  }, []);
+
+  const signIn = async (provider: "google" | "lovable") => {
+    setSignInError("");
+    try {
+      const result = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin });
+      if (result.error) setSignInError("Sign-in could not complete. Please try again.");
+    } catch { setSignInError("Sign-in is unavailable. The camera remains available with simulated examples."); }
+  };
 
   const fileRef = useRef<HTMLInputElement>(null);
   const [photo, setPhoto] = useState<string | null>(null);
+  useEffect(() => () => { if (photo) URL.revokeObjectURL(photo); }, [photo]);
 
   const openCamera = () => fileRef.current?.click();
 
@@ -60,22 +71,45 @@ const QuickCapture = () => {
     if (!f) return;
     if (photo) URL.revokeObjectURL(photo);
     setPhoto(URL.createObjectURL(f));
-    handleCapture();
+    void handleCapture(f);
   };
 
-  const handleCapture = () => {
+  const handleCapture = async (file: File) => {
+    requestRef.current?.abort();
+    const controller = new AbortController();
+    requestRef.current = controller;
+    const timeout = setTimeout(() => controller.abort(), 45_000);
     setPhase("scanning");
     setResults([]);
-    setTimeout(() => setPhase("detecting"), 1400);
-    setTimeout(() => {
-      setResults(mockResults);
-      setPhase("complete");
-    }, 3200);
+    setAnalysis(null);
+    let response: AnalysisResult;
+    try {
+      const photoInput = await preparePhoto(file);
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        response = fallback("Sign in for Google photo analysis. Simulated examples only; this photo has not been analyzed.");
+      } else {
+        setPhase("detecting");
+        const { data, error } = await supabase.functions.invoke("analyze-site-photo", { body: photoInput, signal: controller.signal });
+        if (error) throw new Error("Analysis unavailable");
+        if (!data || !["gemini", "simulated"].includes(data.source) || typeof data.message !== "string") throw new Error("Invalid analysis");
+        response = { findings: parseFindings(data.findings), source: data.source, message: data.message };
+      }
+    } catch {
+      response = fallback(controller.signal.aborted ? "Photo analysis timed out. Simulated examples only; this photo has not been analyzed." : "Photo analysis is unavailable. Simulated examples only; this photo has not been analyzed.");
+    } finally { clearTimeout(timeout); }
+    if (requestRef.current !== controller) return;
+    setAnalysis(response);
+    setResults(response.findings);
+    setPhase("complete");
   };
 
   const reset = () => {
+    requestRef.current?.abort();
+    requestRef.current = null;
     setPhase("idle");
     setResults([]);
+    setAnalysis(null);
     if (photo) URL.revokeObjectURL(photo);
     setPhoto(null);
   };
@@ -90,11 +124,22 @@ const QuickCapture = () => {
         <AIStatusLight phase={phase} />
       </div>
 
+      {!signedIn && (
+        <div className="space-y-2">
+          <p className="clamp-body text-muted-foreground">Sign in for private Google photo analysis. Signed-out captures show simulated examples.</p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => void signIn("google")}>Continue with Google</Button>
+            <Button className="lovable-auth-button" onClick={() => void signIn("lovable")}>Continue with Lovable</Button>
+          </div>
+          {signInError && <p role="alert" className="clamp-body text-primary">{signInError}</p>}
+        </div>
+      )}
+
       {/* Capture Button */}
-      <button
+      <Button variant="ghost"
         onClick={phase === "complete" ? reset : openCamera}
         disabled={phase !== "idle" && phase !== "complete"}
-        className={`w-full rounded-xl p-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider transition-all duration-500 ${
+        className={`w-full h-auto min-h-14 whitespace-normal rounded-xl p-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider transition-all duration-500 ${
           phase === "idle"
             ? "glass border border-accent/30 text-accent hover:border-accent/50 hover:shadow-[0_0_30px_hsla(var(--glow-blue)/0.2)]"
             : phase === "complete"
@@ -117,10 +162,10 @@ const QuickCapture = () => {
         {phase === "complete" && (
           <>
             <CheckCircle2 className="h-5 w-5" />
-            Analysis Complete — Tap to Reset
+            {analysis?.source === "simulated" ? "Simulated Examples — Tap to Reset" : "Analysis Complete — Tap to Reset"}
           </>
         )}
-      </button>
+      </Button>
 
       <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={onPhoto} />
 
@@ -167,10 +212,17 @@ const QuickCapture = () => {
       )}
 
       {/* Results */}
+      {phase === "complete" && analysis && (
+        <div role="status" className={`rounded-lg border p-3 clamp-body ${analysis.source === "simulated" ? "border-safety-orange/40 text-safety-orange bg-safety-orange/10" : "border-accent/30 text-accent bg-accent/5"}`}>
+          <p className="font-semibold">{analysis.source === "simulated" ? "SIMULATED — NOT PHOTO FINDINGS" : "LIVE GOOGLE GEMINI FINDINGS"}</p>
+          <p className="mt-1">{analysis.message}</p>
+          {analysis.source === "gemini" && results.length === 0 && <p>No visible hazards identified; this is not site safety clearance.</p>}
+        </div>
+      )}
       {phase === "complete" && results.length > 0 && (
         <div className="space-y-3 animate-in slide-in-from-bottom-3 fade-in duration-500">
           {results.map((item, i) => {
-            const Icon = item.icon;
+            const Icon = findingIcons[item.metricKey];
             const statusColor =
               item.status === "pass"
                 ? "text-secondary"
@@ -187,16 +239,16 @@ const QuickCapture = () => {
             return (
               <div key={i} className={`glass rounded-xl border ${borderColor} overflow-hidden`}>
                 {/* Detection Header — clickable to trend page */}
-                <button
+                <Button variant="ghost"
                   onClick={() => navigate(`/predictive?metric=${item.metricKey}`)}
-                  className="w-full p-3.5 flex items-center gap-3 hover:bg-accent/5 transition-all duration-300 text-left group"
+                  className="w-full h-auto whitespace-normal p-3.5 flex items-center gap-3 hover:bg-accent/5 transition-all duration-300 text-left group"
                 >
                   <div className="w-9 h-9 rounded-lg glass-strong flex items-center justify-center border border-border/30 shrink-0">
                     <Icon className={`h-4 w-4 ${statusColor}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="clamp-body font-semibold text-foreground">{item.label}</p>
-                    <p className="clamp-body text-muted-foreground/70 text-[10px] uppercase tracking-wider">Tap for 7-day trend →</p>
+                    <p className="clamp-body text-muted-foreground/70 text-[10px] uppercase tracking-wider">Illustrative trend →</p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className={`font-display text-sm font-bold ${statusColor}`}>
@@ -204,7 +256,7 @@ const QuickCapture = () => {
                     </span>
                     <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
                   </div>
-                </button>
+                </Button>
 
                 {/* Predictive Risk Forecast */}
                 <div className="px-3.5 pb-2">
@@ -213,10 +265,10 @@ const QuickCapture = () => {
                     <div className="flex-1 min-w-0">
                       <p className="clamp-body text-muted-foreground/60 uppercase tracking-wider font-medium mb-0.5 text-[9px]">Predictive Risk Forecast</p>
                       <p className="clamp-body text-foreground/80 leading-snug">{item.riskForecast}</p>
-                      <div className="mt-1.5 flex items-center gap-1.5">
+                      {analysis?.source === "simulated" && <div className="mt-1.5 flex items-center gap-1.5">
                         <AlertTriangle className={`h-3 w-3 ${riskColor}`} />
-                        <span className={`font-display text-[11px] font-bold ${riskColor}`}>+{item.riskDelta}% risk increase</span>
-                      </div>
+                        <span className={`font-display text-[11px] font-bold ${riskColor}`}>Example only: +{item.riskDelta}%</span>
+                      </div>}
                     </div>
                   </div>
                 </div>

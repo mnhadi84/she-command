@@ -81,6 +81,9 @@ export async function analyzePhoto(
       }
     }
     return fallback(`${lastReason}. Simulated examples only; this photo has not been analyzed.`);
+  } catch {
+    // Malformed provider payloads must never break the camera.
+    return fallback("Google analysis is unavailable. Simulated examples only; this photo has not been analyzed.");
   } finally {
     clearTimeout(timer);
   }

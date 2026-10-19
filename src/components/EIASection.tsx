@@ -36,16 +36,10 @@ interface EIASectionProps {
 }
 
 const eiaCategories = [
-  { key: "air", title: "Air Quality", icon: Wind, pelLabel: "Limit: Auto (µg/m³)" },
-  { key: "water", title: "Water Discharge", icon: Droplets, pelLabel: "Limit: Auto (mg/L)" },
-  { key: "soil", title: "Soil / Land", icon: Mountain, pelLabel: "Limit: Auto (ppm)" },
-  {
-    key: "noise",
-    title: "Noise Level",
-    icon: Volume2,
-    pelLabel: "Limit: Auto (dBA)",
-    note: "PEL adjusts based on time of day (Day/Night).",
-  },
+  { key: "genset", title: "Generator Exhaust & Emissions", icon: Wind, pelLabel: "Limit: Ringelmann No. 1 (smoke opacity)", note: "Assessed during genset load tests." },
+  { key: "noise", title: "Boundary Noise Level", icon: Volume2, pelLabel: "Limit: 65 dBA Day / 55 dBA Night", note: "DC plant & roadside HDD operations." },
+  { key: "battery", title: "Battery Acid & Electrolyte Containment", icon: Droplets, pelLabel: "Target: pH 6.5 – 8.5", note: "Lead-acid neutralization check." },
+  { key: "silt", title: "Trench Silt & Surface Run-off", icon: Mountain, pelLabel: "Limit: Auto (mg/L TSS)", note: "Suspended solids control during roadside excavation." },
 ];
 
 const EIASection = ({ values, onChange }: EIASectionProps) => {

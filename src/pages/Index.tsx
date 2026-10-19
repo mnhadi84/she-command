@@ -1,12 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   ArrowUpFromLine,
-  Blocks,
   Flame,
   Shovel,
-  Weight,
   FlaskConical,
-  HandMetal,
   Sparkles,
   Save,
   CloudUpload,
@@ -17,8 +14,11 @@ import {
   Info,
   X,
   FileDown,
-  Volume2,
   Thermometer,
+  Zap,
+  CircleDot,
+  TrafficCone,
+  Warehouse,
   ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -39,16 +39,26 @@ import type { WorkZone } from "@/components/WorkZoneSelector";
 type Status = "safe" | "unsafe" | "na" | null;
 
 const categories = [
-  { title: "Working at Height", icon: ArrowUpFromLine },
-  { title: "Scaffolding & Temp Structures", icon: Blocks },
-  { title: "Hot Work", icon: Flame },
-  { title: "Excavation Work", icon: Shovel },
-  { title: "Heavy Lifting Work", icon: Weight },
-  { title: "Chemical Handling", icon: FlaskConical },
-  { title: "Manual Handling Work", icon: HandMetal },
-  { title: "Acoustic / Noise", icon: Volume2 },
-  { title: "Heat Stress", icon: Thermometer },
+  { title: "Working at Height (Towers, Poles, Risers & Rooftop Solar)", icon: ArrowUpFromLine },
+  { title: "Electrical Safety, Solar DC & LOTO", icon: Zap },
+  { title: "Underground Utilities & Excavation (OSP & EV Trenching)", icon: Shovel },
+  { title: "Confined Space & Manhole Entry", icon: CircleDot },
+  { title: "Traffic Management Plan (TMP) & Roadside Safety", icon: TrafficCone },
+  { title: "Warehouse Safety & Materials Handling", icon: Warehouse },
+  { title: "Hot Work & Mechanical Safety", icon: Flame },
+  { title: "Hazardous Materials, Batteries & Fiber Optics", icon: FlaskConical },
 ];
+
+const CAT = {
+  height: categories[0].title,
+  electrical: categories[1].title,
+  underground: categories[2].title,
+  confined: categories[3].title,
+  tmp: categories[4].title,
+  warehouse: categories[5].title,
+  hotwork: categories[6].title,
+  hazmat: categories[7].title,
+};
 
 const STORAGE_KEY = "she-analytics-statuses";
 const DETAILS_KEY = "she-analytics-details";
@@ -59,14 +69,30 @@ const NOISE_SITE_KEY = "she-analytics-noise-site";
 const AMBIENT_TEMP_KEY = "she-analytics-ambient-temp";
 
 const zoneRelevantCategories: Record<string, string[]> = {
-  Tunnel: ["Hot Work", "Chemical Handling", "Manual Handling Work", "Housekeeping"],
-  "Underground Station": ["Hot Work", "Chemical Handling", "Manual Handling Work", "Housekeeping", "Heavy Lifting Work"],
-  "Ground Level": ["Excavation Work", "Heavy Lifting Work", "Manual Handling Work", "Housekeeping", "Hot Work", "Chemical Handling"],
-  Elevated: ["Working at Height", "Scaffolding & Temp Structures", "Heavy Lifting Work", "Hot Work", "Manual Handling Work", "Housekeeping"],
-  Viaduct: ["Working at Height", "Scaffolding & Temp Structures", "Heavy Lifting Work", "Hot Work", "Housekeeping"],
-  "Elevated Station": ["Working at Height", "Scaffolding & Temp Structures", "Heavy Lifting Work", "Hot Work", "Manual Handling Work", "Housekeeping"],
-  "Highrise Building": ["Working at Height", "Scaffolding & Temp Structures", "Heavy Lifting Work", "Hot Work", "Manual Handling Work", "Housekeeping", "Chemical Handling"],
+  "OSP & Roadside Civils": [CAT.underground, CAT.tmp, CAT.hotwork, CAT.hazmat],
+  "Aerial Fiber & Poles": [CAT.height, CAT.electrical, CAT.tmp, CAT.hazmat],
+  "Underground Manhole & Chamber": [CAT.confined, CAT.underground, CAT.tmp, CAT.hazmat],
+  "Solar Installation (TESB)": [CAT.height, CAT.electrical, CAT.hotwork, CAT.hazmat],
+  "EV Charger Hub (Charge N Go)": [CAT.electrical, CAT.underground, CAT.tmp, CAT.hotwork],
+  "Warehouse & Logistics Hub": [CAT.warehouse, CAT.hazmat, CAT.hotwork, CAT.electrical],
+  "Substation & DC Power Room": [CAT.electrical, CAT.hazmat, CAT.confined, CAT.hotwork],
+  "Building Risers & MDF": [CAT.height, CAT.electrical, CAT.confined, CAT.hazmat],
 };
+
+const GAS_LIMITS = {
+  o2: { label: "Oxygen (O₂)", unit: "%", target: "19.5 – 23.5%", ok: (v: number) => v >= 19.5 && v <= 23.5 },
+  lel: { label: "Combustible (LEL)", unit: "%", target: "0%", ok: (v: number) => v === 0 },
+  co: { label: "Carbon Monoxide (CO)", unit: "ppm", target: "< 25 ppm", ok: (v: number) => v < 25 },
+  h2s: { label: "Hydrogen Sulfide (H₂S)", unit: "ppm", target: "< 10 ppm", ok: (v: number) => v < 10 },
+} as const;
+type GasKey = keyof typeof GAS_LIMITS;
+
+export const gasOutOfRange = (g: Record<string, string>) =>
+  (Object.keys(GAS_LIMITS) as GasKey[]).some((k) => g[k] !== undefined && g[k] !== "" && !GAS_LIMITS[k].ok(parseFloat(g[k])));
+
+const MANHOLE_KEY = "she-analytics-manhole";
+const GAS_KEY = "she-analytics-gas";
+const HEIGHT_ASSET_KEY = "she-analytics-height-asset";
 
 const emptyDetails = (): UnsafeDetails => ({ severity: "", description: "", assignTo: "" });
 
@@ -185,6 +211,11 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   const [noiseSiteType, setNoiseSiteType] = useState<string>(() => {
     try { return localStorage.getItem(NOISE_SITE_KEY) || ""; } catch { return ""; }
   });
+  const [manholeType, setManholeType] = useState<string>(() => localStorage.getItem(MANHOLE_KEY) || "");
+  const [gas, setGas] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem(GAS_KEY) || "{}"); } catch { return {}; }
+  });
+  const [heightAsset, setHeightAsset] = useState<string>(() => localStorage.getItem(HEIGHT_ASSET_KEY) || "");
   const [ambientTemp, setAmbientTemp] = useState<string>(() => {
     try { return localStorage.getItem(AMBIENT_TEMP_KEY) || ""; } catch { return ""; }
   });
@@ -206,7 +237,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
 
   const esgScore = useMemo(() => {
     let score = 70;
-    if (esgValues.sourceCert === "esg-certified") score += 10;
+    if (esgValues.sourceCert === "cradle-to-cradle-certified") score += 10;
     if (esgValues.disposalChain === "cradle-to-cradle") score += 8;
     if (esgValues.energySaver === "active") score += 7;
     const rain = parseFloat(esgValues.renewableWaterRatio) || 0;
@@ -225,6 +256,10 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   useEffect(() => { localStorage.setItem(ESG_KEY, JSON.stringify(esgValues)); }, [esgValues]);
   useEffect(() => { localStorage.setItem(ZONE_KEY, workZone); }, [workZone]);
   useEffect(() => { localStorage.setItem(NOISE_SITE_KEY, noiseSiteType); }, [noiseSiteType]);
+  useEffect(() => { localStorage.setItem(MANHOLE_KEY, manholeType); }, [manholeType]);
+  useEffect(() => { localStorage.setItem(GAS_KEY, JSON.stringify(gas)); }, [gas]);
+  useEffect(() => { localStorage.setItem(HEIGHT_ASSET_KEY, heightAsset); }, [heightAsset]);
+  const hazardousAtmosphere = manholeType === "entry" && gasOutOfRange(gas);
   useEffect(() => { localStorage.setItem(AMBIENT_TEMP_KEY, ambientTemp); }, [ambientTemp]);
 
   const handleEIAChange = (key: string, value: string) => setEIAValues((prev) => ({ ...prev, [key]: value }));
@@ -277,10 +312,10 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
         {/* Site ID - compact */}
         <div className="glass-strong px-4 py-2 border-b border-border/30">
           <p className="clamp-body text-accent font-medium tracking-wide">
-            Active Project: <span className="text-foreground">MRT Line 3 - Kajang Sector</span>
+            Active Project: <span className="text-foreground">TIME dotCom Infrastructure Operations — Central Region</span>
           </p>
           <p className="clamp-body text-muted-foreground">
-            Lead Inspector: <span className="text-foreground">Mr. Hadi</span>
+            Lead HSE: <span className="text-foreground">En. Hadi</span>
           </p>
         </div>
 
@@ -331,52 +366,88 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                         showValidation={showValidation}
                       />
 
-                      {/* Cat 8: Acoustic/Noise — conditional sub-menu on unsafe */}
-                      {cat.title === "Acoustic / Noise" && statuses[cat.title] === "unsafe" && (
-                        <div className="glass rounded-xl p-4 border border-primary/20 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                          <p className="font-display clamp-body font-semibold uppercase tracking-wider text-primary">
-                            Site Type — Control Selection
-                          </p>
+                      {/* Working at Height — asset toggle */}
+                      {cat.title === CAT.height && (
+                        <div className="glass rounded-xl p-4 border border-border/20 space-y-3">
+                          <p className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground">Asset Type</p>
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => setNoiseSiteType("enclosed")}
-                              className={`flex-1 rounded-lg px-3 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${
-                                noiseSiteType === "enclosed"
-                                  ? "bg-accent/20 border-accent/40 text-accent"
-                                  : "glass border-border/30 text-muted-foreground hover:border-accent/20"
-                              }`}
-                            >
-                              Enclosed / Confined
-                            </button>
-                            <button
-                              onClick={() => setNoiseSiteType("open")}
-                              className={`flex-1 rounded-lg px-3 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${
-                                noiseSiteType === "open"
-                                  ? "bg-accent/20 border-accent/40 text-accent"
-                                  : "glass border-border/30 text-muted-foreground hover:border-accent/20"
-                              }`}
-                            >
-                              Open / Outdoor
-                            </button>
+                            <button onClick={() => setHeightAsset("solar")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${heightAsset === "solar" ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>Rooftop Solar (TESB)</button>
+                            <button onClick={() => setHeightAsset("pole")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${heightAsset === "pole" ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>Utility Pole</button>
+                            <button onClick={() => setHeightAsset("tower")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${heightAsset === "tower" ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>Tower / Riser</button>
                           </div>
-                          {noiseSiteType === "enclosed" && (
-                            <div className="glass rounded-lg p-3 border border-accent/20 bg-accent/5">
-                              <p className="clamp-body text-accent font-semibold">🔧 Engineering Control Required</p>
-                              <p className="clamp-body text-muted-foreground mt-1">Source Damping &amp; Acoustic Enclosure.</p>
-                            </div>
-                          )}
-                          {noiseSiteType === "open" && (
-                            <div className="glass rounded-lg p-3 border border-accent/20 bg-accent/5">
-                              <p className="clamp-body text-accent font-semibold">📋 Administrative Control Required</p>
-                              <p className="clamp-body text-muted-foreground mt-1">15m Exclusion Zone &amp; Job Rotation.</p>
+                          {heightAsset === "solar" && (
+                            <div className="rounded-lg p-3 border border-safety-orange/30 bg-safety-orange/10">
+                              <p className="clamp-body font-semibold text-safety-orange">Rooftop Solar Reminder</p>
+                              <p className="clamp-body text-muted-foreground mt-1">Verify edge protection is installed and fragile roof / skylight covers are in place before stepping onto the roof.</p>
                             </div>
                           )}
                         </div>
                       )}
 
-                      {/* Cat 9: Heat Stress — ambient temperature input */}
-                      {cat.title === "Heat Stress" && (
-                        <div className="glass rounded-xl p-4 border border-border/20 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                      {/* Confined Space & Manhole Entry */}
+                      {cat.title === CAT.confined && (
+                        <div className="glass rounded-xl p-4 border border-border/20 space-y-3">
+                          <p className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground">Manhole Type</p>
+                          <div className="flex flex-col gap-2">
+                            <button onClick={() => setManholeType("shallow")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${manholeType === "shallow" ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>Non-Entry / Shallow Manhole (&lt; 1.2m / Joint Box)</button>
+                            <button onClick={() => setManholeType("entry")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${manholeType === "entry" ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>Entry-Required Standard Manhole (≥ 1.2m – 3.0m)</button>
+                          </div>
+                          {manholeType === "shallow" && (
+                            <div className="space-y-3">
+                              <div className="rounded-lg p-3 border border-accent/30 bg-accent/10">
+                                <p className="clamp-body font-semibold text-accent">Low / Moderate Risk</p>
+                                <p className="clamp-body text-muted-foreground mt-1">No bodily entry permitted. Work conducted from surface rim using extended tools.</p>
+                              </div>
+                              <ul className="space-y-1.5"><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Rim perimeter guard deployed</li><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Surface gas sniffer check clear</li><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Cover lifter used</li></ul>
+                            </div>
+                          )}
+                          {manholeType === "entry" && (
+                            <div className="space-y-3">
+                              <div className="rounded-lg p-3 border border-destructive/40 bg-destructive/10">
+                                <p className="clamp-body font-bold uppercase tracking-wider text-destructive">Critical High-Risk Confined Space</p>
+                              </div>
+                              <p className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground">4-Gas Test</p>
+                              <div className="grid grid-cols-2 gap-2">
+                                {(Object.keys(GAS_LIMITS) as GasKey[]).map((k) => {
+                                  const g = GAS_LIMITS[k];
+                                  const v = gas[k] ?? "";
+                                  const bad = v !== "" && !g.ok(parseFloat(v));
+                                  return (
+                                    <div key={k} className={`rounded-lg p-2 border ${bad ? "border-destructive/60 bg-destructive/10" : "border-border/30"}`}>
+                                      <label className="clamp-body text-foreground font-semibold block">{g.label}</label>
+                                      <span className="text-[10px] text-muted-foreground">Target: {g.target}</span>
+                                      <div className="flex items-center gap-1 mt-1">
+                                        <input type="number" step="0.1" value={v} onChange={(e) => setGas((p) => ({ ...p, [k]: e.target.value }))} placeholder="0" className="w-full rounded-md glass border border-border/40 px-2 py-2 clamp-body text-foreground bg-transparent focus:outline-none focus:ring-1 focus:ring-accent/50" />
+                                        <span className="clamp-body text-muted-foreground">{g.unit}</span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              {hazardousAtmosphere && (
+                                <div className="rounded-lg p-3 border-2 border-destructive bg-destructive/20 animate-pulse">
+                                  <p className="clamp-body font-bold text-destructive uppercase tracking-wider">CRITICAL: HAZARDOUS ATMOSPHERE — FORCED VENTILATION MANDATORY &amp; EVACUATE</p>
+                                </div>
+                              )}
+                              <p className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground">Mandatory Checks</p>
+                              <ul className="space-y-1.5"><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Mechanical blower running</li><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Tripod &amp; winch rigged</li><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Certified Standby Person (AESP) on surface</li></ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Heat Stress & Ambient Climate */}
+          <div className="space-y-2">
+            <h2 className="font-display clamp-heading font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              Heat Stress &amp; Ambient Climate
+            </h2>
+            <div className="glass rounded-xl p-4 border border-border/20 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                           <label className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground block">
                             Ambient Temperature (°C)
                           </label>
@@ -393,17 +464,12 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                                 ⚠️ HI-PO RISK
                               </p>
                               <p className="clamp-body text-destructive/90 mt-1">
-                                Mandatory 15-min cooling break every hour.
+                                Mandatory 15-minute cooling cycle every hour for outdoor trenching & rooftop solar teams.
                               </p>
                             </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                      
           </div>
 
           </>)}
@@ -432,8 +498,8 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                 "  SHE-ANALYTICS — AI INSPECTION REPORT",
                 "═══════════════════════════════════════════",
                 `Date: ${new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}`,
-                `Project: MRT Line 3 — Kajang Sector`,
-                `Inspector: Mr. Hadi`,
+                `Project: TIME dotCom Infrastructure Operations — Central Region`,
+                `Lead HSE: En. Hadi`,
                 `Work Zone: ${workZone || "Not Selected"}`,
                 "",
                 "── EXECUTIVE SCORES ──",
@@ -441,7 +507,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                 `ESG Score: ${esgScore}%`,
                 `Operational Score: ${opsScore}%`,
                 "",
-                "── INSPECTION SUMMARY ──",
+                "── CORE 8 TELCO HIGH-RISK ACTIVITIES ──",
                 `Categories Inspected: ${totalInspected} / ${contextCategories.length}`,
                 `Open Issues: ${openIssues}`,
                 "",
@@ -454,12 +520,21 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                 }),
                 "",
                 "── CONTEXT SELECTIONS ──",
-                `Noise Site Type: ${noiseSiteType === "enclosed" ? "Enclosed / Confined" : noiseSiteType === "open" ? "Open / Outdoor" : "Not Set"}`,
+                `Working at Height Asset: ${heightAsset === "solar" ? "Rooftop Solar (TESB)" : heightAsset === "pole" ? "Utility Pole" : heightAsset === "tower" ? "Tower / Riser" : "Not Set"}`,
+                `Manhole Classification: ${manholeType === "shallow" ? "Non-Entry / Shallow (< 1.2m)" : manholeType === "entry" ? "Entry-Required Standard (≥ 1.2m – 3.0m)" : "Not Set"}`,
+                ...(manholeType === "entry"
+                  ? (Object.keys(GAS_LIMITS) as GasKey[]).map((k) => `  ${GAS_LIMITS[k].label}: ${gas[k] ? gas[k] + " " + GAS_LIMITS[k].unit : "Not Recorded"} (target ${GAS_LIMITS[k].target})`)
+                  : []),
+                hazardousAtmosphere ? "🔴 CRITICAL: HAZARDOUS ATMOSPHERE — FORCED VENTILATION MANDATORY & EVACUATE" : "",
                 `Ambient Temperature: ${ambientTemp ? ambientTemp + "°C" : "Not Recorded"}`,
-                parseFloat(ambientTemp) > 37 ? "⚠️ HI-PO RISK: Mandatory 15-min cooling break every hour." : "",
+                parseFloat(ambientTemp) > 37 ? "⚠️ HI-PO RISK: Mandatory 15-min cooling cycle for outdoor trenching & rooftop solar teams." : "",
+                "",
+                "── TESB / CHARGE N GO RISK STATUS ──",
+                `TESB Solar (Work at Height): ${statuses[CAT.height] ?? "Pending"} | Electrical/DC LOTO: ${statuses[CAT.electrical] ?? "Pending"}`,
+                `Charge N Go EV Hub (Trenching): ${statuses[CAT.underground] ?? "Pending"} | TMP: ${statuses[CAT.tmp] ?? "Pending"}`,
                 "",
                 "── METHODOLOGY ──",
-"Logic powered by High-Reliability Safety Governance & Predictive Field Algorithms.",
+"Aligned with TIME OSH Management System, Cooper's Reciprocal Safety Culture Model, and DOSH Regulatory Codes.",
                 "",
                 "Generated by SHE-Analytics v2.0",
               ];
@@ -502,7 +577,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
           </div>
 
           <p className="text-center clamp-body text-muted-foreground/60 tracking-wide pt-2">
-            SHE-Analytics v2.0 &nbsp;|&nbsp; AI-Powered &nbsp;|&nbsp; Mr. Hadi
+            SHE-Analytics v2.0 &nbsp;|&nbsp; AI-Powered &nbsp;|&nbsp; En. Hadi
           </p>
         </main>
 
@@ -536,8 +611,9 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                 <h3 className="font-display text-lg font-bold text-foreground tracking-wide">Research Methodology</h3>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Logic powered by <span className="text-accent font-semibold">Cooper's Reciprocal Safety Culture Framework</span>{" "}
-                &amp; <span className="text-accent font-semibold">Predictive Context-Aware Spatial Algorithms</span>.
+                Aligned with <span className="text-accent font-semibold">TIME OSH Management System</span>,{" "}
+                <span className="text-accent font-semibold">Cooper's Reciprocal Safety Culture Model</span>, and{" "}
+                <span className="text-accent font-semibold">Department of Occupational Safety &amp; Health (DOSH) Regulatory Codes</span>.
               </p>
               <div className="mt-4 pt-4 border-t border-border/20">
                 <p className="text-xs text-muted-foreground/70 leading-relaxed">

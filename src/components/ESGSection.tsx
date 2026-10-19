@@ -29,6 +29,9 @@ export interface ESGValues {
   municipalWater: string;
   co2Impact: string;
   machineryHours: string;
+  solarOffset: string;
+  fiberRecycling: string;
+  batteryReclaim: string;
 }
 
 export const emptyESG = (): ESGValues => ({
@@ -40,6 +43,9 @@ export const emptyESG = (): ESGValues => ({
   municipalWater: "",
   co2Impact: "",
   machineryHours: "",
+  solarOffset: "",
+  fiberRecycling: "",
+  batteryReclaim: "",
 });
 
 /* ------------------------------------------------------------------ */
@@ -258,14 +264,14 @@ interface ESGSectionProps {
 }
 
 const certOptions = [
-  { value: "esg-certified", label: "ESG Certified" },
-  { value: "partially-certified", label: "Partial" },
-  { value: "not-certified", label: "Not Certified" },
+  { value: "cradle-to-cradle-certified", label: "Cradle-to-Cradle Certified" },
+  { value: "licensed-vendor", label: "Recycled via Licensed Vendor" },
+  { value: "untracked", label: "Untracked" },
 ];
 
 const disposalOptions = [
-  { value: "cradle-to-grave", label: "Cradle-to-Grave" },
-  { value: "cradle-to-cradle", label: "Cradle-to-Cradle" },
+  { value: "cradle-to-cradle", label: "Fully Reclaimed" },
+  { value: "cradle-to-grave", label: "Partially Reclaimed" },
   { value: "untracked", label: "Untracked" },
 ];
 
@@ -288,40 +294,62 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
       </h2>
 
       {/* 1. Material Integrity */}
-      <SubSection title="Material Integrity" icon={Recycle}>
+      <SubSection title="Material Integrity & Circularity" icon={Recycle}>
         <StatusCard
           icon={PackageCheck}
-          title="Source Certification"
-          subtitle="ESG-certified suppliers (sand/concrete)"
+          title="E-Waste & Scrap Fiber Recovery"
+          subtitle="Decommissioned equipment & cable recovery"
           value={values.sourceCert}
           onChange={(v) => onChange("sourceCert", v)}
           options={certOptions}
         />
         <StatusCard
           icon={Trash2}
-          title="Disposal Chain"
-          subtitle="Cradle-to-Grave material tracking"
+          title="Battery Cell Reclamation"
+          subtitle="UPS / lead-acid cell reclamation tracking"
           value={values.disposalChain}
           onChange={(v) => onChange("disposalChain", v)}
           options={disposalOptions}
         />
+        <MetricCard
+          icon={Recycle}
+          title="Fiber Offcut Recycling"
+          subtitle="Fiber offcut / shard recovery rate"
+          value={values.fiberRecycling}
+          onChange={(v) => onChange("fiberRecycling", v)}
+          unit="%"
+          placeholder="0"
+        />
+      </SubSection>
+
+      {/* Clean Energy */}
+      <SubSection title="Clean Energy (TESB)" icon={Zap}>
+        <MetricCard
+          icon={Zap}
+          title="Solar PV Generation Offset"
+          subtitle="TESB energy yield"
+          value={values.solarOffset}
+          onChange={(v) => onChange("solarOffset", v)}
+          unit="kWh"
+          placeholder="0"
+        />
       </SubSection>
 
       {/* 2. Carbon & Energy Efficiency */}
-      <SubSection title="Carbon & Energy" icon={Fuel}>
+      <SubSection title="Carbon & Fuel" icon={Fuel}>
         <MetricCard
           icon={Fuel}
-          title="Diesel Efficiency"
-          subtitle="Based on maintenance logs"
+          title="Fleet Fuel Efficiency"
+          subtitle="Splicing van & fleet consumption"
           value={values.dieselEfficiency}
           onChange={(v) => onChange("dieselEfficiency", v)}
-          unit="L/hr"
+          unit="L/100km"
           placeholder="0.0"
         />
         <StatusCard
           icon={Zap}
-          title="Energy Saver"
-          subtitle="Auto-off tracking for electrical equipment"
+          title="Eco-mode Rectifiers & Inverters"
+          subtitle="Rectifier eco-mode & inverter efficiency"
           value={values.energySaver}
           onChange={(v) => onChange("energySaver", v)}
           options={energySaverOptions}
@@ -329,7 +357,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
         />
         <MetricCard
           icon={Factory}
-          title="Machinery Hours"
+          title="Genset / Plant Hours"
           subtitle="Total daily operational hours"
           value={values.machineryHours}
           onChange={(v) => onChange("machineryHours", v)}
@@ -383,7 +411,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
         <MetricCard
           icon={Factory}
           title="CO₂ Generation"
-          subtitle="Material & machinery emissions"
+          subtitle="Fleet, genset & material emissions"
           value={values.co2Impact}
           onChange={(v) => onChange("co2Impact", v)}
           unit="kg"

@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Camera, ScanLine, ShieldCheck, Zap, Cable, CheckCircle2, Loader2, ChevronRight, TrendingUp, AlertTriangle, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
-import "@lovable.dev/cloud-auth-js/styles.css";
 import { preparePhoto } from "@/lib/camera-photo";
 import { fallback, parseFindings, type AnalysisResult, type Finding } from "../../supabase/functions/analyze-site-photo/contract";
 

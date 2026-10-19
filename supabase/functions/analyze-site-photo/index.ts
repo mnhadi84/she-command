@@ -1,4 +1,3 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { analyzePhoto } from "./analyze.ts";
 import { validatePhoto } from "./contract.ts";

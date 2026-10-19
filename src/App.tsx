@@ -20,6 +20,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/dashboard" element={<Index />} />
+          <Route path="/inspection" element={<Index section="inspection" />} />
+          <Route path="/eia" element={<Index section="eia" />} />
+          <Route path="/esg" element={<Index section="esg" />} />
+          <Route path="/risk-analytics" element={<Index section="risk" />} />
           <Route path="/heatmap" element={<Heatmap />} />
           <Route path="/predictive" element={<PredictiveAnalytics />} />
           <Route path="*" element={<NotFound />} />

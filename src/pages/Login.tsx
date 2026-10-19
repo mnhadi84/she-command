@@ -23,14 +23,8 @@ const Login = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!staffId.trim() || !password.trim()) {
-      toast({ title: "Missing Fields", description: "Please enter Staff ID and Password.", variant: "destructive" });
-      return;
-    }
-    if (!ppeConfirmed) {
-      toast({ title: "PPE Verification Required", description: "You must confirm your PPE is inspected and site-ready.", variant: "destructive" });
-      return;
-    }
+    // Mock auth: bypass backend sign-in for now
+    try { localStorage.setItem("she-auth", "true"); } catch { /* ignore */ }
     navigate("/dashboard");
   };
 
@@ -115,7 +109,7 @@ const Login = () => {
             type="text"
             value={projectCode}
             onChange={(e) => setProjectCode(e.target.value)}
-            placeholder="NEOM-01"
+            placeholder="HSE-8801"
             className={inputClass}
           />
 
@@ -173,7 +167,7 @@ const Login = () => {
         <div className="flex items-center gap-1.5 mt-6 opacity-40">
           <ShieldCheck className="h-3 w-3 text-white/60" />
           <p className="text-[10px] text-white/60 tracking-wide">
-            Verified by ASCF Framework Logic | Secure Edge-Cloud Sync
+            Verified by SHE Management System Logic | Secure Encrypted Sync
           </p>
         </div>
       </div>

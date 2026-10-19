@@ -1,10 +1,12 @@
-import { LayoutDashboard, BookOpen, BarChart3 } from "lucide-react";
+import { LayoutDashboard, ClipboardCheck, Leaf, Recycle, Activity } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: BarChart3, label: "Heatmap", path: "/heatmap" },
-  { icon: BookOpen, label: "SOP Library", path: "#" },
+  { icon: LayoutDashboard, label: "Home", path: "/dashboard" },
+  { icon: ClipboardCheck, label: "Inspect", path: "/inspection" },
+  { icon: Leaf, label: "EIA", path: "/eia" },
+  { icon: Recycle, label: "ESG", path: "/esg" },
+  { icon: Activity, label: "Risk", path: "/risk-analytics" },
 ];
 
 const BottomNav = () => {
@@ -19,18 +21,14 @@ const BottomNav = () => {
           return (
             <button
               key={item.label}
-              onClick={() => item.path !== "#" && navigate(item.path)}
-              className={`relative flex flex-col items-center gap-1 min-h-[48px] min-w-[48px] px-4 py-2 rounded-lg transition-all duration-200 ${
-                isActive
-                  ? "text-accent"
-                  : "text-muted-foreground hover:text-foreground"
+              onClick={() => navigate(item.path)}
+              className={`relative flex flex-col items-center gap-1 min-h-[48px] min-w-[48px] px-2 py-2 rounded-lg transition-all duration-200 ${
+                isActive ? "text-accent" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <item.icon className={`h-5 w-5 ${isActive ? "drop-shadow-[0_0_6px_hsl(var(--glow-blue))]" : ""}`} />
               <span className="clamp-body font-semibold uppercase tracking-wider">{item.label}</span>
-              {isActive && (
-                <span className="absolute -top-0 h-0.5 w-8 rounded-full bg-accent" />
-              )}
+              {isActive && <span className="absolute -top-0 h-0.5 w-8 rounded-full bg-accent" />}
             </button>
           );
         })}

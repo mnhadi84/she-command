@@ -13,7 +13,7 @@ const responseSchema = {
   },
 };
 
-// Google retires older model names without notice, so try these in order and use the first that serves the request.
+// Google retires model names without notice, so walk this list and use the first model that serves the request.
 const models = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-flash-lite-latest"];
 const busyStatuses = new Set([429, 503]);
 
@@ -32,7 +32,7 @@ export async function analyzePhoto(
   photo: { image: string; mimeType: string },
   key: string | undefined,
   fetcher: typeof fetch = fetch,
-  timeoutMs = 30_000,
+  timeoutMs = 45_000,
   retryDelayMs = 1_500,
 ): Promise<AnalysisResult> {
   if (!key) return fallback("Google analysis is not configured. Simulated examples only; this photo has not been analyzed.");
@@ -43,12 +43,37 @@ export async function analyzePhoto(
     generationConfig: { responseMimeType: "application/json", responseSchema },
   });
   let lastReason = "Google analysis is unavailable";
+  let retried = false;
   try {
     for (const model of models) {
-      for (let attempt = 0; attempt < 2; attempt++) {
-        let response: Response;
+      let response: Response;
+      try {
+        // The key stays in a request header so it never lands in a URL that proxies and access logs record.
+        response = await fetcher(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+          method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, signal: controller.signal, body,
+        });
+      } catch {
+        return fallback(controller.signal.aborted
+          ? "Google analysis timed out. Simulated examples only; this photo has not been analyzed."
+          : "Google analysis is unavailable. Simulated examples only; this photo has not been analyzed.");
+      }
+      if (response.ok) {
+        const parsed = await response.json();
+        const candidate = parsed.candidates?.[0];
+        if (parsed.promptFeedback?.blockReason || !candidate || (candidate.finishReason && candidate.finishReason !== "STOP")) {
+          return fallback("Google could not complete this analysis. Simulated examples only; this photo has not been analyzed.");
+        }
+        const text = candidate.content?.parts?.filter((part: { text?: string; thought?: boolean }) => !part.thought && typeof part.text === "string").map((part: { text: string }) => part.text).join("");
+        if (!text) return fallback("Google returned no findings. Simulated examples only; this photo has not been analyzed.");
+        const findings = parseFindings(JSON.parse(text)).map(f => ({ ...f, riskDelta: 0 }));
+        return { findings, source: "gemini", message: `Google Gemini (${model}) photo analysis — visual observations only; verify all controls on-site.` };
+      }
+      lastReason = reasonFor(response.status, model);
+      // Google reports overload as 503 and throttling as 429: pause once, then keep looking for a model that answers.
+      if (busyStatuses.has(response.status) && !retried) {
+        retried = true;
+        await wait(retryDelayMs);
         try {
-          // The key stays in a request header so it never lands in a URL that proxies and access logs record.
           response = await fetcher(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
             method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, signal: controller.signal, body,
           });
@@ -60,25 +85,18 @@ export async function analyzePhoto(
         if (response.ok) {
           const parsed = await response.json();
           const candidate = parsed.candidates?.[0];
-          if (parsed.promptFeedback?.blockReason || !candidate || (candidate.finishReason && candidate.finishReason !== "STOP")) {
-            return fallback("Google could not complete this analysis. Simulated examples only; this photo has not been analyzed.");
+          const text = candidate?.content?.parts?.filter((part: { text?: string; thought?: boolean }) => !part.thought && typeof part.text === "string").map((part: { text: string }) => part.text).join("");
+          if (text && !parsed.promptFeedback?.blockReason && (!candidate.finishReason || candidate.finishReason === "STOP")) {
+            const findings = parseFindings(JSON.parse(text)).map(f => ({ ...f, riskDelta: 0 }));
+            return { findings, source: "gemini", message: `Google Gemini (${model}) photo analysis — visual observations only; verify all controls on-site.` };
           }
-          const text = candidate.content?.parts?.filter((part: { text?: string; thought?: boolean }) => !part.thought && typeof part.text === "string").map((part: { text: string }) => part.text).join("");
-          if (!text) return fallback("Google returned no findings. Simulated examples only; this photo has not been analyzed.");
-          const findings = parseFindings(JSON.parse(text)).map(f => ({ ...f, riskDelta: 0 }));
-          return { findings, source: "gemini", message: `Google Gemini (${model}) photo analysis — visual observations only; verify all controls on-site.` };
-        }
-        // Google reports overload as 503 and throttling as 429; both are worth one short pause before giving up.
-        if (busyStatuses.has(response.status) && attempt === 0) {
           lastReason = reasonFor(response.status, model);
-          await wait(retryDelayMs);
-          continue;
+        } else {
+          lastReason = reasonFor(response.status, model);
         }
-        lastReason = reasonFor(response.status, model);
-        // A rejected key will not improve by trying another model name.
-        if (response.status === 401 || response.status === 403) return fallback(`${lastReason}. Simulated examples only; this photo has not been analyzed.`);
-        break;
       }
+      // A rejected key will not improve by trying another model name.
+      if (response.status === 401 || response.status === 403) return fallback(`${lastReason}. Simulated examples only; this photo has not been analyzed.`);
     }
     return fallback(`${lastReason}. Simulated examples only; this photo has not been analyzed.`);
   } catch {

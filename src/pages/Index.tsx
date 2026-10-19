@@ -276,6 +276,8 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   useEffect(() => { localStorage.setItem(HEIGHT_ASSET_KEY, heightAsset); }, [heightAsset]);
   const hazardousAtmosphere = manholeType === "entry" && gasOutOfRange(gas);
   useEffect(() => { localStorage.setItem(AMBIENT_TEMP_KEY, ambientTemp); }, [ambientTemp]);
+  useEffect(() => { localStorage.setItem(PLANT_KEY, JSON.stringify(plantChecks)); }, [plantChecks]);
+  const plantUnverified = PLANT_ITEMS.filter((i) => !plantChecks[i.key]);
 
   const handleEIAChange = (key: string, value: string) => setEIAValues((prev) => ({ ...prev, [key]: value }));
   const handleESGChange = (key: keyof ESGValues, value: string) => setESGValues((prev) => ({ ...prev, [key]: value }));

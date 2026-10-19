@@ -233,6 +233,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   const [ambientTemp, setAmbientTemp] = useState<string>(() => {
     try { return localStorage.getItem(AMBIENT_TEMP_KEY) || ""; } catch { return ""; }
   });
+  const [plantChecks, setPlantChecks] = useState<PlantChecks>(loadPlant);
 
   const contextCategories = workZone && zoneRelevantCategories[workZone]
     ? categories.filter((c) => zoneRelevantCategories[workZone].includes(c.title))

@@ -451,9 +451,47 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                             </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  )}
+                        )}
+
+                        {/* Underground Utilities — Plant & Machinery Verification (OSP zone only) */}
+                        {cat.title === CAT.underground && workZone === "OSP & Roadside Civils" && (
+                          <div className="glass rounded-xl p-4 border border-safety-orange/30 space-y-3">
+                            <div className="flex items-center gap-2">
+                              <HardHat className="h-4 w-4 text-safety-orange" />
+                              <p className="font-display clamp-body font-semibold uppercase tracking-wider text-safety-orange">Plant &amp; Machinery Verification</p>
+                            </div>
+                            <div className="space-y-2">
+                              {PLANT_ITEMS.map((item) => {
+                                const ok = plantChecks[item.key];
+                                return (
+                                  <button
+                                    key={item.key}
+                                    onClick={() => setPlantChecks((p) => ({ ...p, [item.key]: !p[item.key] }))}
+                                    className={`w-full flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-all duration-200 border ${ok ? "border-secondary/40 bg-secondary/10" : "border-border/30 glass hover:border-safety-orange/30"}`}
+                                  >
+                                    <Wrench className={`h-4 w-4 shrink-0 ${ok ? "text-secondary" : "text-muted-foreground"}`} />
+                                    <span className={`clamp-body font-medium flex-1 ${ok ? "text-foreground" : "text-muted-foreground"}`}>{item.label}</span>
+                                    <span className={`clamp-body font-display font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${ok ? "bg-secondary/20 text-secondary" : "bg-muted text-muted-foreground"}`}>
+                                      {ok ? "Verified" : "Unverified"}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            {plantUnverified.length > 0 && (
+                              <div className="flex items-start gap-2 rounded-lg bg-safety-orange/10 border border-safety-orange/30 px-3 py-2 animate-in fade-in duration-200">
+                                <AlertTriangle className="h-4 w-4 text-safety-orange shrink-0 mt-0.5" />
+                                <p className="clamp-body text-safety-orange font-medium">
+                                  {plantUnverified.length === PLANT_ITEMS.length
+                                    ? "Machinery must not operate without verified operator competency and signed daily pre-use inspection."
+                                    : `Pending: ${plantUnverified.map((i) => i.label.split(" (")[0]).join(", ")}. Machinery must not operate without verified operator competency and signed daily pre-use inspection.`}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
               ))}
             </div>

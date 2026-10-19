@@ -16,9 +16,9 @@ interface DetectedItem {
 }
 
 const mockResults: DetectedItem[] = [
-  { label: "PPE Compliance", confidence: 96, icon: ShieldCheck, status: "pass", metricKey: "ppe", riskForecast: "Trip hazard probability +15% due to current rainfall levels", riskDelta: 15, recommendation: "SOP 4.2 — Slip & Fall Prevention: Deploy slip-resistant matting at Zone B entry points and increase supervisor walkthroughs between 14:00–16:00." },
-  { label: "Machine Health", confidence: 82, icon: Wrench, status: "warning", metricKey: "machine", riskForecast: "Hydraulic failure risk +22% — vibration anomaly detected", riskDelta: 22, recommendation: "SOP 6.1 — Mechanical Isolation & Hydraulic Inspection: Isolate Crane #3 for immediate hydraulic inspection. Schedule predictive maintenance within 4 hours." },
-  { label: "Material Type: Grade 40 Concrete", confidence: 91, icon: Package, status: "pass", metricKey: "material", riskForecast: "Curing integrity risk +8% due to ambient humidity drop", riskDelta: 8, recommendation: "SOP 5.3 — Concrete Curing & Moisture Verification: Apply curing compound to freshly poured slabs and verify moisture retention at 2-hour intervals." },
+  { label: "PPE & Fall Arrest Compliance", confidence: 96, icon: ShieldCheck, status: "pass", metricKey: "ppe", riskForecast: "Slip/trip probability +12% during afternoon squall", riskDelta: 12, recommendation: "SOP 2.1 — Height Safety: Verify 100% tie-off on vertical lifelines and ensure helmet chin straps are buckled on ladders and skylifts." },
+  { label: "Solar DC & EV Electrical Isolation (LOTO)", confidence: 84, icon: Zap, status: "warning", metricKey: "electrical", riskForecast: "Stored energy discharge risk +24% — unverified DC isolator tag", riskDelta: 24, recommendation: "SOP 3.4 — Stored Energy Isolation: Verify LOTO lockout tag on TESB solar string isolator and Charge N Go feeder breaker before contact." },
+  { label: "Fiber Workstation & Shard Containment", confidence: 92, icon: Cable, status: "pass", metricKey: "fiber", riskForecast: "Cornea/puncture hazard probability +5% in tight splicing van", riskDelta: 5, recommendation: "SOP 7.2 — Optical Safety: Dedicated fiber cleave shard container verified on splicing mat. Ensure optical laser source is deactivated prior to inspection." },
 ];
 
 const AIStatusLight = ({ phase }: { phase: AnalysisPhase }) => {

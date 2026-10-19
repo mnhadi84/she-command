@@ -1,4 +1,5 @@
-import { MapPin, AlertTriangle, ShieldAlert, CheckCircle2, Gauge, Tag } from "lucide-react";
+import { MapPin, AlertTriangle, ShieldAlert, CheckCircle2, Gauge, Tag, HardHat, Wrench } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -24,7 +25,7 @@ interface ZoneInfo {
   description: string;
   tier: Tier;
   tags: string[];
-  checks: { label: string; priority: "high" | "standard" }[];
+  checks: { label: string; priority: "high" | "standard"; icon?: LucideIcon }[];
 }
 
 export const zoneInfo: Record<Exclude<WorkZone, "">, ZoneInfo> = {

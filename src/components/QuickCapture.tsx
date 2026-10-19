@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Camera, ScanLine, ShieldCheck, Zap, Cable, CheckCircle2, Loader2, ChevronRight, TrendingUp, AlertTriangle, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
-import "@lovable.dev/cloud-auth-js/styles.css";
 import { preparePhoto } from "@/lib/camera-photo";
 import { fallback, parseFindings, type AnalysisResult, type Finding } from "../../supabase/functions/analyze-site-photo/contract";
 
@@ -40,24 +38,9 @@ const QuickCapture = () => {
   const [phase, setPhase] = useState<AnalysisPhase>("idle");
   const [results, setResults] = useState<Finding[]>([]);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [signedIn, setSignedIn] = useState(false);
-  const [signInError, setSignInError] = useState("");
   const requestRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    let active = true;
-    supabase.auth.getSession().then(({ data }) => { if (active) setSignedIn(Boolean(data.session)); });
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => setSignedIn(Boolean(session)));
-    return () => { active = false; data.subscription.unsubscribe(); requestRef.current?.abort(); };
-  }, []);
-
-  const signIn = async (provider: "google" | "lovable") => {
-    setSignInError("");
-    try {
-      const result = await lovable.auth.signInWithOAuth(provider, { redirect_uri: window.location.origin });
-      if (result.error) setSignInError("Sign-in could not complete. Please try again.");
-    } catch { setSignInError("Sign-in is unavailable. The camera remains available with simulated examples."); }
-  };
+  useEffect(() => () => { requestRef.current?.abort(); }, []);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const [photo, setPhoto] = useState<string | null>(null);
@@ -85,16 +68,11 @@ const QuickCapture = () => {
     let response: AnalysisResult;
     try {
       const photoInput = await preparePhoto(file);
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        response = fallback("Sign in for Google photo analysis. Simulated examples only; this photo has not been analyzed.");
-      } else {
-        setPhase("detecting");
-        const { data, error } = await supabase.functions.invoke("analyze-site-photo", { body: photoInput, signal: controller.signal });
-        if (error) throw new Error("Analysis unavailable");
-        if (!data || !["gemini", "simulated"].includes(data.source) || typeof data.message !== "string") throw new Error("Invalid analysis");
-        response = { findings: parseFindings(data.findings), source: data.source, message: data.message };
-      }
+      setPhase("detecting");
+      const { data, error } = await supabase.functions.invoke("analyze-site-photo", { body: photoInput, signal: controller.signal });
+      if (error) throw new Error("Analysis unavailable");
+      if (!data || !["gemini", "simulated"].includes(data.source) || typeof data.message !== "string") throw new Error("Invalid analysis");
+      response = { findings: parseFindings(data.findings), source: data.source, message: data.message };
     } catch {
       response = fallback(controller.signal.aborted ? "Photo analysis timed out. Simulated examples only; this photo has not been analyzed." : "Photo analysis is unavailable. Simulated examples only; this photo has not been analyzed.");
     } finally { clearTimeout(timeout); }
@@ -124,16 +102,6 @@ const QuickCapture = () => {
         <AIStatusLight phase={phase} />
       </div>
 
-      {!signedIn && (
-        <div className="space-y-2">
-          <p className="clamp-body text-muted-foreground">Sign in for private Google photo analysis. Signed-out captures show simulated examples.</p>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => void signIn("google")}>Continue with Google</Button>
-            <Button className="lovable-auth-button" onClick={() => void signIn("lovable")}>Continue with Lovable</Button>
-          </div>
-          {signInError && <p role="alert" className="clamp-body text-primary">{signInError}</p>}
-        </div>
-      )}
 
       {/* Capture Button */}
       <Button variant="ghost"

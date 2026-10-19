@@ -14,7 +14,7 @@ const responseSchema = {
 };
 
 // Google retires older model names without notice, so try these in order and use the first that serves the request.
-const models = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-3-flash-preview", "gemini-3.5-flash"];
+const models = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-flash-lite-latest"];
 const busyStatuses = new Set([429, 503]);
 
 function wait(ms: number) {

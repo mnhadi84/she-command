@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Index from "./pages/Index";
-import Heatmap from "./pages/Heatmap";
 import PredictiveAnalytics from "./pages/PredictiveAnalytics";
 import NotFound from "./pages/NotFound";
 
@@ -24,7 +23,6 @@ const App = () => (
           <Route path="/eia" element={<Index section="eia" />} />
           <Route path="/esg" element={<Index section="esg" />} />
           <Route path="/risk-analytics" element={<Index section="risk" />} />
-          <Route path="/heatmap" element={<Heatmap />} />
           <Route path="/predictive" element={<PredictiveAnalytics />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

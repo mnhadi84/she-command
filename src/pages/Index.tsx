@@ -108,6 +108,52 @@ const loadPlant = (): PlantChecks => {
   try { return { operator: false, dailyLog: false, safetyDevices: false, ...JSON.parse(localStorage.getItem(PLANT_KEY) || "{}") }; } catch { return { operator: false, dailyLog: false, safetyDevices: false }; }
 };
 
+const WAH_KEY = "she-analytics-wah";
+type LadderKey = "structure" | "setup" | "contact";
+type MewpKey = "pma" | "operator" | "preop" | "restraint";
+type WahState = {
+  harness: boolean;
+  equipment: "" | "ladder" | "mewp";
+  ladder: Record<LadderKey, boolean>;
+  mewp: Record<MewpKey, boolean>;
+  pmaNo: string;
+};
+const LADDER_ITEMS: { key: LadderKey; label: string; hint: string }[] = [
+  { key: "structure", label: "Ladder Structural Condition", hint: "Rungs, stiles, non-slip rubber feet intact; fiberglass/non-conductive near power lines." },
+  { key: "setup", label: "Ladder Setup & Securing", hint: "Tied off at top/base, firm level ground, 4:1 slope angle ratio." },
+  { key: "contact", label: "Three points of contact maintained during ascent/descent", hint: "" },
+];
+const MEWP_ITEMS: { key: MewpKey; label: string; hint: string }[] = [
+  { key: "pma", label: "Valid DOSH PMA Certificate", hint: "Perakuan Kelayakan Mesin Angkat active and displayed on machine." },
+  { key: "operator", label: "Competent Operator Certification", hint: "Valid CIDB / authorized MEWP operator card verified." },
+  { key: "preop", label: "Pre-Operation Mechanical & Hydraulic Check", hint: "Outriggers fully deployed with base pads, ground stable, emergency lowering valve operational, zero hydraulic leaks." },
+  { key: "restraint", label: "Basket Fall Restraint", hint: "Lanyard tethered to designated harness anchor inside basket, not on guardrails." },
+];
+const defaultWah = (): WahState => ({
+  harness: false,
+  equipment: "",
+  ladder: { structure: false, setup: false, contact: false },
+  mewp: { pma: false, operator: false, preop: false, restraint: false },
+  pmaNo: "",
+});
+const loadWah = (): WahState => {
+  const d = defaultWah();
+  try {
+    const p = JSON.parse(localStorage.getItem(WAH_KEY) || "{}");
+    return { ...d, ...p, ladder: { ...d.ladder, ...p.ladder }, mewp: { ...d.mewp, ...p.mewp } };
+  } catch { return d; }
+};
+const CheckRow = ({ label, hint, ok, onClick }: { label: string; hint?: string; ok: boolean; onClick: () => void }) => (
+  <button onClick={onClick} className={`flex w-full items-start gap-3 rounded-lg px-3 py-2.5 min-h-[48px] text-left border transition-all ${ok ? "border-secondary/30 bg-secondary/10" : "glass border-border/30"}`}>
+    <ShieldCheck className={`h-4 w-4 shrink-0 mt-0.5 ${ok ? "text-secondary" : "text-muted-foreground"}`} />
+    <div className="flex-1">
+      <p className="clamp-body font-medium text-foreground">{label}</p>
+      {hint && <p className="clamp-body text-muted-foreground">{hint}</p>}
+    </div>
+    <span className={`clamp-body font-display uppercase tracking-wider ${ok ? "text-secondary" : "text-muted-foreground"}`}>{ok ? "Verified" : "Pending"}</span>
+  </button>
+);
+
 const emptyDetails = (): UnsafeDetails => ({ severity: "", description: "", assignTo: "" });
 
 const loadStatuses = (): Record<string, Status> => {
@@ -234,6 +280,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
     try { return localStorage.getItem(AMBIENT_TEMP_KEY) || ""; } catch { return ""; }
   });
   const [plantChecks, setPlantChecks] = useState<PlantChecks>(loadPlant);
+  const [wah, setWah] = useState<WahState>(loadWah);
 
   const contextCategories = workZone && zoneRelevantCategories[workZone]
     ? categories.filter((c) => zoneRelevantCategories[workZone].includes(c.title))
@@ -274,6 +321,9 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   useEffect(() => { localStorage.setItem(MANHOLE_KEY, manholeType); }, [manholeType]);
   useEffect(() => { localStorage.setItem(GAS_KEY, JSON.stringify(gas)); }, [gas]);
   useEffect(() => { localStorage.setItem(HEIGHT_ASSET_KEY, heightAsset); }, [heightAsset]);
+  useEffect(() => { localStorage.setItem(WAH_KEY, JSON.stringify(wah)); }, [wah]);
+  const showLadder = wah.equipment === "ladder" || workZone === "Aerial Fiber & Poles" || workZone === "Building Risers & MDF";
+  const showMewp = wah.equipment === "mewp" || workZone === "Solar Installation (TESB)";
   const hazardousAtmosphere = manholeType === "entry" && gasOutOfRange(gas);
   useEffect(() => { localStorage.setItem(AMBIENT_TEMP_KEY, ambientTemp); }, [ambientTemp]);
   useEffect(() => { localStorage.setItem(PLANT_KEY, JSON.stringify(plantChecks)); }, [plantChecks]);
@@ -576,6 +626,12 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                 "",
                 "── CONTEXT SELECTIONS ──",
                 `Working at Height Asset: ${heightAsset === "solar" ? "Rooftop Solar (TESB)" : heightAsset === "pole" ? "Utility Pole" : heightAsset === "tower" ? "Tower / Riser" : "Not Set"}`,
+                `  Harness & Fall Arrest Compliance: ${wah.harness ? "✅ Compliant" : "🔴 NON-COMPLIANT — CRITICAL VIOLATION"}`,
+                ...(showLadder ? LADDER_ITEMS.map((i) => `  Ladder — ${i.label}: ${wah.ladder[i.key] ? "✅ Verified" : "🔴 Unverified"}`) : []),
+                ...(showMewp ? [
+                  `  Skylift PMA No.: ${wah.pmaNo || "Not Recorded"}`,
+                  ...MEWP_ITEMS.map((i) => `  Skylift — ${i.label}: ${wah.mewp[i.key] ? "✅ Verified" : "🔴 Unverified"}`),
+                ] : []),
                 `Manhole Classification: ${manholeType === "shallow" ? "Non-Entry / Shallow (< 1.2m)" : manholeType === "entry" ? "Entry-Required Standard (≥ 1.2m – 3.0m)" : "Not Set"}`,
                 ...(manholeType === "entry"
                   ? (Object.keys(GAS_LIMITS) as GasKey[]).map((k) => `  ${GAS_LIMITS[k].label}: ${gas[k] ? gas[k] + " " + GAS_LIMITS[k].unit : "Not Recorded"} (target ${GAS_LIMITS[k].target})`)

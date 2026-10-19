@@ -166,7 +166,10 @@ const SmartStatusCard = ({
 /*  Main Page                                                          */
 /* ================================================================== */
 
-const Index = () => {
+export type DashboardSection = "all" | "inspection" | "eia" | "esg" | "risk";
+
+const Index = ({ section = "all" }: { section?: DashboardSection }) => {
+  const show = (s: Exclude<DashboardSection, "all">) => section === "all" || section === s;
   const [showMethodology, setShowMethodology] = useState(false);
   const [statuses, setStatuses] = useState<Record<string, Status>>(loadStatuses);
   const [details, setDetails] = useState<Record<string, UnsafeDetails>>(loadDetails);
@@ -283,6 +286,7 @@ const Index = () => {
 
         <main className="px-4 py-6 pb-32 space-y-5">
 
+          {show("risk") && (<>
           {/* 1. AI Quick Capture — Hero Action */}
           <QuickCapture />
 
@@ -295,7 +299,9 @@ const Index = () => {
 
           {/* 3. Live Environment Widget */}
           <LiveEnvironment />
+          </>)}
 
+          {show("inspection") && (<>
           {/* 4. Work Zone (compact) */}
           <WorkZoneSelector value={workZone} onChange={setWorkZone} />
 
@@ -400,17 +406,23 @@ const Index = () => {
             </div>
           </div>
 
+          </>)}
+
           {/* 6. Insights — EIA (collapsed) */}
-          <InsightsSection title="Environmental Insights (EIA)">
+          {show("eia") && (
+          <InsightsSection key={`eia-${section}`} title="Environmental Insights (EIA)" defaultOpen={section === "eia"}>
             <EIASection values={eiaValues} onChange={handleEIAChange} />
           </InsightsSection>
+          )}
 
           {/* 7. ESG — visible but subtle, auto-open */}
-          <InsightsSection title="Sustainability & ESG" defaultOpen={true}>
+          {show("esg") && (
+          <InsightsSection key={`esg-${section}`} title="Sustainability & ESG" defaultOpen={true}>
             <div className="opacity-90">
               <ESGSection values={esgValues} onChange={handleESGChange} workZone={workZone} />
             </div>
           </InsightsSection>
+          )}
 
           {/* Export Report */}
           <button

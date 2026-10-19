@@ -23,14 +23,8 @@ const Login = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!staffId.trim() || !password.trim()) {
-      toast({ title: "Missing Fields", description: "Please enter Staff ID and Password.", variant: "destructive" });
-      return;
-    }
-    if (!ppeConfirmed) {
-      toast({ title: "PPE Verification Required", description: "You must confirm your PPE is inspected and site-ready.", variant: "destructive" });
-      return;
-    }
+    // Mock auth: bypass backend sign-in for now
+    try { localStorage.setItem("she-auth", "true"); } catch { /* ignore */ }
     navigate("/dashboard");
   };
 

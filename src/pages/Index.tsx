@@ -583,6 +583,16 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                 hazardousAtmosphere ? "🔴 CRITICAL: HAZARDOUS ATMOSPHERE — FORCED VENTILATION MANDATORY & EVACUATE" : "",
                 `Ambient Temperature: ${ambientTemp ? ambientTemp + "°C" : "Not Recorded"}`,
                 parseFloat(ambientTemp) > 37 ? "⚠️ HI-PO RISK: Mandatory 15-min cooling cycle for outdoor trenching & rooftop solar teams." : "",
+"",
+                workZone === "OSP & Roadside Civils"
+                  ? "── PLANT & OPERATOR VERIFICATION (OSP) ──" +
+                    PLANT_ITEMS.map(
+                      (i) => `\n  ${i.label}: ${plantChecks[i.key] ? "✅ Verified" : "🔴 Unverified"}`
+                    ).join("") +
+                    (plantUnverified.length > 0
+                      ? "\n  ⚠️ Machinery must not operate without verified operator competency and signed daily pre-use inspection."
+                      : "")
+                  : "",
                 "",
                 "── TESB / CHARGE N GO RISK STATUS ──",
                 `TESB Solar (Work at Height): ${statuses[CAT.height] ?? "Pending"} | Electrical/DC LOTO: ${statuses[CAT.electrical] ?? "Pending"}`,

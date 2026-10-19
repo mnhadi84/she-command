@@ -20,6 +20,9 @@ import {
   TrafficCone,
   Warehouse,
   ShieldCheck,
+  HardHat,
+  Wrench,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -93,6 +96,17 @@ export const gasOutOfRange = (g: Record<string, string>) =>
 const MANHOLE_KEY = "she-analytics-manhole";
 const GAS_KEY = "she-analytics-gas";
 const HEIGHT_ASSET_KEY = "she-analytics-height-asset";
+const PLANT_KEY = "she-analytics-plant";
+
+type PlantChecks = { operator: boolean; dailyLog: boolean; safetyDevices: boolean };
+const PLANT_ITEMS: { key: keyof PlantChecks; label: string }[] = [
+  { key: "operator", label: "Operator Competency (CIDB Card verified on-site)" },
+  { key: "dailyLog", label: "Daily Pre-Operation Checklist & Service Log verified" },
+  { key: "safetyDevices", label: "Safety Devices Functional (Reversing alarm, flashing beacon, hydraulic check)" },
+];
+const loadPlant = (): PlantChecks => {
+  try { return { operator: false, dailyLog: false, safetyDevices: false, ...JSON.parse(localStorage.getItem(PLANT_KEY) || "{}") }; } catch { return { operator: false, dailyLog: false, safetyDevices: false }; }
+};
 
 const emptyDetails = (): UnsafeDetails => ({ severity: "", description: "", assignTo: "" });
 

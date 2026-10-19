@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, ShieldCheck, UserPlus, X } from "lucide-react";
+import { Eye, EyeOff, ShieldCheck, UserPlus, X, Activity } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/Logo_SHE_Analytics.png";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -62,37 +61,34 @@ const Login = () => {
   };
 
   const inputClass =
-    "w-full bg-transparent border-0 border-b border-white/20 pb-2.5 pt-1.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[hsl(120,45%,45%)] transition-colors";
+    "w-full bg-transparent border-0 border-b border-white/20 pb-2.5 pt-1.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[hsl(var(--brand-magenta))] transition-colors";
 
   return (
     <div className="relative h-screen flex items-center justify-center px-4 overflow-hidden">
       {/* Dark Industrial Gradient Background */}
       <div
         className="absolute inset-0"
-        style={{ background: "linear-gradient(135deg, hsl(220, 25%, 10%) 0%, hsl(220, 20%, 6%) 100%)" }}
+        style={{ background: "linear-gradient(135deg, hsl(222, 33%, 8%) 0%, hsl(222, 33%, 4%) 100%)" }}
       />
       {/* Subtle Glassmorphic Backdrop Overlay */}
       <div className="absolute inset-0 backdrop-blur-[2px]" style={{
-        background: "radial-gradient(circle at 50% 30%, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 45%, transparent 70%)"
+        background: "radial-gradient(circle at 50% 30%, hsl(324 100% 46% / 0.10) 0%, hsl(196 100% 44% / 0.05) 45%, transparent 70%)"
       }} />
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-[420px] flex flex-col items-center">
         {/* Logo — large, transparent, seamless */}
-        <img
-          src={logo}
-          alt="SHE-Analytics Logo"
-          className="w-[5.2rem] h-[5.2rem] object-contain mb-1 select-none drop-shadow-[0_0_30px_rgba(0,0,0,0.6)]"
-          draggable={false}
-          style={{ mixBlendMode: "multiply", filter: "brightness(1.1)" }}
-        />
+         <div aria-label="TIME dotCom logo" className="flex flex-col items-center mb-3 select-none">
+          <span className="font-display text-5xl font-bold lowercase leading-none text-[hsl(var(--brand-magenta))] drop-shadow-[0_0_18px_hsl(var(--brand-magenta)/0.6)]">time</span>
+          <Activity className="h-5 w-16 text-[hsl(var(--brand-cyan))] drop-shadow-[0_0_8px_hsl(var(--brand-cyan)/0.7)]" />
+        </div>
 
         {/* Brand Text */}
-        <h1 className="font-display text-xl font-bold tracking-[0.18em] text-[hsl(210,60%,55%)] mb-0 drop-shadow-lg">
-          SHE-ANALYTICS
+        <h1 className="font-display text-xl font-bold tracking-[0.18em] text-white mb-1 drop-shadow-lg">
+          TIME SHE-COMMAND
         </h1>
-        <p className="text-[10px] tracking-[0.3em] text-[hsl(120,50%,50%)] font-semibold mb-5 drop-shadow-md">
-          INSPECTION INTELLIGENCE
+        <p className="text-[10px] tracking-[0.2em] text-[hsl(var(--brand-cyan))] font-semibold mb-5 text-center uppercase">
+          Environmental &amp; Occupational Safety Intelligence
         </p>
 
         {/* Login Form */}
@@ -137,7 +133,7 @@ const Login = () => {
               id="ppe"
               checked={ppeConfirmed}
               onCheckedChange={(v) => setPpeConfirmed(v === true)}
-              className="mt-0.5 border-[hsl(120,45%,45%)] data-[state=checked]:bg-[hsl(120,45%,45%)] data-[state=checked]:border-[hsl(120,45%,45%)]"
+              className="mt-0.5 border-[hsl(var(--brand-magenta))] data-[state=checked]:bg-[hsl(var(--brand-magenta))] data-[state=checked]:border-[hsl(var(--brand-magenta))]"
             />
             <label htmlFor="ppe" className="text-xs text-white/60 leading-relaxed cursor-pointer select-none">
               <span className="text-white font-medium">Pre-Entry:</span> I confirm my PPE is inspected and site-ready.
@@ -147,7 +143,7 @@ const Login = () => {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full py-2.5 rounded-lg bg-[hsl(120,45%,40%)] hover:bg-[hsl(120,45%,45%)] text-white font-display font-semibold text-sm tracking-[0.2em] uppercase transition-all duration-200 hover:shadow-[0_0_25px_rgba(60,160,60,0.35)]"
+            className="w-full py-2.5 rounded-full bg-[hsl(var(--brand-magenta))] hover:brightness-110 text-white font-display font-semibold text-sm tracking-[0.2em] uppercase transition-all duration-200 hover:shadow-[0_0_25px_hsl(var(--brand-magenta)/0.45)]"
           >
             Secure Login
           </button>

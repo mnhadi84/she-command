@@ -49,7 +49,7 @@ const categories = [
   { title: "Confined Space & Manhole Entry", icon: CircleDot },
   { title: "Traffic Management Plan (TMP) & Roadside Safety", icon: TrafficCone },
   { title: "Warehouse Safety & Materials Handling", icon: Warehouse },
-  { title: "Hot Work & Mechanical Safety", icon: Flame },
+  { title: "Hot Work Activity", icon: Flame },
   { title: "Hazardous Materials, Batteries & Fiber Optics", icon: FlaskConical },
 ];
 
@@ -107,6 +107,20 @@ const PLANT_ITEMS: { key: keyof PlantChecks; label: string }[] = [
 ];
 const loadPlant = (): PlantChecks => {
   try { return { operator: false, dailyLog: false, safetyDevices: false, ...JSON.parse(localStorage.getItem(PLANT_KEY) || "{}") }; } catch { return { operator: false, dailyLog: false, safetyDevices: false }; }
+};
+
+const HOT_KEY = "she-analytics-hotwork";
+type HotKey = "extinguisher" | "clearance" | "ppe" | "permit";
+type HotWorkState = { type: "" | "welding" | "cutting"; checks: Record<HotKey, boolean> };
+const HOT_ITEMS: { key: HotKey; label: string; hint: string }[] = [
+  { key: "extinguisher", label: "Fire Extinguisher on Standby", hint: "ABC Dry Powder / CO2 fully charged, tagged, and placed within 3m of hot work point." },
+  { key: "clearance", label: "Area Clearance & Spark Containment", hint: "Combustible materials cleared within 10m radius or shielded with certified fire blankets." },
+  { key: "ppe", label: "Specialized PPE Verified", hint: "Auto-darkening welding mask or cutting/grinding goggles/face shield, plus heavy-duty leather welding gloves and apron." },
+  { key: "permit", label: "Permit & Fire Watch Assignment", hint: "Valid Hot Work Permit displayed; designated Fire Watch monitoring during work and 30 minutes post-work." },
+];
+const loadHotWork = (): HotWorkState => {
+  const d: HotWorkState = { type: "", checks: { extinguisher: false, clearance: false, ppe: false, permit: false } };
+  try { const p = JSON.parse(localStorage.getItem(HOT_KEY) || "{}"); return { ...d, ...p, checks: { ...d.checks, ...p.checks } }; } catch { return d; }
 };
 
 const WAH_KEY = "she-analytics-wah";
@@ -282,6 +296,9 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   });
   const [plantChecks, setPlantChecks] = useState<PlantChecks>(loadPlant);
   const [wah, setWah] = useState<WahState>(loadWah);
+  const [hotWork, setHotWork] = useState<HotWorkState>(loadHotWork);
+  useEffect(() => { localStorage.setItem(HOT_KEY, JSON.stringify(hotWork)); }, [hotWork]);
+  const hotUnchecked = HOT_ITEMS.some((i) => !hotWork.checks[i.key]);
 
   const contextCategories = workZone && zoneRelevantCategories[workZone]
     ? categories.filter((c) => zoneRelevantCategories[workZone].includes(c.title))

@@ -1,4 +1,5 @@
-import { MapPin, AlertTriangle, ShieldAlert, CheckCircle2, Gauge, Tag } from "lucide-react";
+import { MapPin, AlertTriangle, ShieldAlert, CheckCircle2, Gauge, Tag, HardHat, Wrench } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -24,7 +25,7 @@ interface ZoneInfo {
   description: string;
   tier: Tier;
   tags: string[];
-  checks: { label: string; priority: "high" | "standard" }[];
+  checks: { label: string; priority: "high" | "standard"; icon?: LucideIcon }[];
 }
 
 export const zoneInfo: Record<Exclude<WorkZone, "">, ZoneInfo> = {
@@ -35,6 +36,8 @@ export const zoneInfo: Record<Exclude<WorkZone, "">, ZoneInfo> = {
     checks: [
       { label: "Utility detection (CAT & Genny) completed", priority: "high" },
       { label: "Traffic Management Plan barricading active", priority: "high" },
+      { label: "Plant Operator Competency Verified (CIDB / Valid License)", icon: HardHat, priority: "high" },
+      { label: "Excavator / Backhoe Daily Pre-Use & Maintenance Log Active", icon: Wrench, priority: "high" },
       { label: "Trench silt traps installed", priority: "standard" },
     ],
   },
@@ -191,7 +194,8 @@ const WorkZoneSelector = ({ value, onChange }: WorkZoneSelectorProps) => {
             <div className="space-y-2">
               {info.checks.map((item, i) => {
                 const isHigh = item.priority === "high";
-                const Icon = isHigh ? ShieldAlert : CheckCircle2;
+                const CustomIcon = item.icon;
+                const Icon = CustomIcon ?? (isHigh ? ShieldAlert : CheckCircle2);
                 return (
                   <div key={i} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 ${isHigh ? "glass border-safety-orange/30 glow-orange" : "glass"}`}>
                     <Icon className={`h-4 w-4 shrink-0 ${isHigh ? "text-safety-orange" : "text-accent"}`} />

@@ -20,6 +20,9 @@ import {
   TrafficCone,
   Warehouse,
   ShieldCheck,
+  HardHat,
+  Wrench,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -93,6 +96,17 @@ export const gasOutOfRange = (g: Record<string, string>) =>
 const MANHOLE_KEY = "she-analytics-manhole";
 const GAS_KEY = "she-analytics-gas";
 const HEIGHT_ASSET_KEY = "she-analytics-height-asset";
+const PLANT_KEY = "she-analytics-plant";
+
+type PlantChecks = { operator: boolean; dailyLog: boolean; safetyDevices: boolean };
+const PLANT_ITEMS: { key: keyof PlantChecks; label: string }[] = [
+  { key: "operator", label: "Operator Competency (CIDB Card verified on-site)" },
+  { key: "dailyLog", label: "Daily Pre-Operation Checklist & Service Log verified" },
+  { key: "safetyDevices", label: "Safety Devices Functional (Reversing alarm, flashing beacon, hydraulic check)" },
+];
+const loadPlant = (): PlantChecks => {
+  try { return { operator: false, dailyLog: false, safetyDevices: false, ...JSON.parse(localStorage.getItem(PLANT_KEY) || "{}") }; } catch { return { operator: false, dailyLog: false, safetyDevices: false }; }
+};
 
 const emptyDetails = (): UnsafeDetails => ({ severity: "", description: "", assignTo: "" });
 
@@ -219,6 +233,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   const [ambientTemp, setAmbientTemp] = useState<string>(() => {
     try { return localStorage.getItem(AMBIENT_TEMP_KEY) || ""; } catch { return ""; }
   });
+  const [plantChecks, setPlantChecks] = useState<PlantChecks>(loadPlant);
 
   const contextCategories = workZone && zoneRelevantCategories[workZone]
     ? categories.filter((c) => zoneRelevantCategories[workZone].includes(c.title))
@@ -261,6 +276,8 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   useEffect(() => { localStorage.setItem(HEIGHT_ASSET_KEY, heightAsset); }, [heightAsset]);
   const hazardousAtmosphere = manholeType === "entry" && gasOutOfRange(gas);
   useEffect(() => { localStorage.setItem(AMBIENT_TEMP_KEY, ambientTemp); }, [ambientTemp]);
+  useEffect(() => { localStorage.setItem(PLANT_KEY, JSON.stringify(plantChecks)); }, [plantChecks]);
+  const plantUnverified = PLANT_ITEMS.filter((i) => !plantChecks[i.key]);
 
   const handleEIAChange = (key: string, value: string) => setEIAValues((prev) => ({ ...prev, [key]: value }));
   const handleESGChange = (key: keyof ESGValues, value: string) => setESGValues((prev) => ({ ...prev, [key]: value }));
@@ -434,9 +451,47 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                             </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  )}
+                        )}
+
+                        {/* Underground Utilities — Plant & Machinery Verification (OSP zone only) */}
+                        {cat.title === CAT.underground && workZone === "OSP & Roadside Civils" && (
+                          <div className="glass rounded-xl p-4 border border-safety-orange/30 space-y-3">
+                            <div className="flex items-center gap-2">
+                              <HardHat className="h-4 w-4 text-safety-orange" />
+                              <p className="font-display clamp-body font-semibold uppercase tracking-wider text-safety-orange">Plant &amp; Machinery Verification</p>
+                            </div>
+                            <div className="space-y-2">
+                              {PLANT_ITEMS.map((item) => {
+                                const ok = plantChecks[item.key];
+                                return (
+                                  <button
+                                    key={item.key}
+                                    onClick={() => setPlantChecks((p) => ({ ...p, [item.key]: !p[item.key] }))}
+                                    className={`w-full flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-all duration-200 border ${ok ? "border-secondary/40 bg-secondary/10" : "border-border/30 glass hover:border-safety-orange/30"}`}
+                                  >
+                                    <Wrench className={`h-4 w-4 shrink-0 ${ok ? "text-secondary" : "text-muted-foreground"}`} />
+                                    <span className={`clamp-body font-medium flex-1 ${ok ? "text-foreground" : "text-muted-foreground"}`}>{item.label}</span>
+                                    <span className={`clamp-body font-display font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${ok ? "bg-secondary/20 text-secondary" : "bg-muted text-muted-foreground"}`}>
+                                      {ok ? "Verified" : "Unverified"}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            {plantUnverified.length > 0 && (
+                              <div className="flex items-start gap-2 rounded-lg bg-safety-orange/10 border border-safety-orange/30 px-3 py-2 animate-in fade-in duration-200">
+                                <AlertTriangle className="h-4 w-4 text-safety-orange shrink-0 mt-0.5" />
+                                <p className="clamp-body text-safety-orange font-medium">
+                                  {plantUnverified.length === PLANT_ITEMS.length
+                                    ? "Machinery must not operate without verified operator competency and signed daily pre-use inspection."
+                                    : `Pending: ${plantUnverified.map((i) => i.label.split(" (")[0]).join(", ")}. Machinery must not operate without verified operator competency and signed daily pre-use inspection.`}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
               ))}
             </div>
@@ -528,6 +583,16 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                 hazardousAtmosphere ? "🔴 CRITICAL: HAZARDOUS ATMOSPHERE — FORCED VENTILATION MANDATORY & EVACUATE" : "",
                 `Ambient Temperature: ${ambientTemp ? ambientTemp + "°C" : "Not Recorded"}`,
                 parseFloat(ambientTemp) > 37 ? "⚠️ HI-PO RISK: Mandatory 15-min cooling cycle for outdoor trenching & rooftop solar teams." : "",
+"",
+                workZone === "OSP & Roadside Civils"
+                  ? "── PLANT & OPERATOR VERIFICATION (OSP) ──" +
+                    PLANT_ITEMS.map(
+                      (i) => `\n  ${i.label}: ${plantChecks[i.key] ? "✅ Verified" : "🔴 Unverified"}`
+                    ).join("") +
+                    (plantUnverified.length > 0
+                      ? "\n  ⚠️ Machinery must not operate without verified operator competency and signed daily pre-use inspection."
+                      : "")
+                  : "",
                 "",
                 "── TESB / CHARGE N GO RISK STATUS ──",
                 `TESB Solar (Work at Height): ${statuses[CAT.height] ?? "Pending"} | Electrical/DC LOTO: ${statuses[CAT.electrical] ?? "Pending"}`,

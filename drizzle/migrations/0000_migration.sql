@@ -1,0 +1,1 @@
+ALTER TABLE public.users ALTER COLUMN project_code SET DEFAULT 'HSE-8801';

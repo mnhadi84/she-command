@@ -16,9 +16,9 @@ interface DetectedItem {
 }
 
 const mockResults: DetectedItem[] = [
-  { label: "PPE Compliance", confidence: 96, icon: ShieldCheck, status: "pass", metricKey: "ppe", riskForecast: "Trip hazard probability +15% due to current rainfall levels", riskDelta: 15, recommendation: "ASCF 4.2: Deploy slip-resistant matting at Zone B entry points and increase supervisor walkthroughs between 14:00–16:00." },
-  { label: "Machine Health", confidence: 82, icon: Wrench, status: "warning", metricKey: "machine", riskForecast: "Hydraulic failure risk +22% — vibration anomaly detected", riskDelta: 22, recommendation: "ASCF 6.1: Isolate Crane #3 for immediate hydraulic inspection. Schedule predictive maintenance within 4 hours." },
-  { label: "Material Type: Grade 40 Concrete", confidence: 91, icon: Package, status: "pass", metricKey: "material", riskForecast: "Curing integrity risk +8% due to ambient humidity drop", riskDelta: 8, recommendation: "ASCF 5.3: Apply curing compound to freshly poured slabs and verify moisture retention at 2-hour intervals." },
+  { label: "PPE Compliance", confidence: 96, icon: ShieldCheck, status: "pass", metricKey: "ppe", riskForecast: "Trip hazard probability +15% due to current rainfall levels", riskDelta: 15, recommendation: "SOP 4.2 — Slip & Fall Prevention: Deploy slip-resistant matting at Zone B entry points and increase supervisor walkthroughs between 14:00–16:00." },
+  { label: "Machine Health", confidence: 82, icon: Wrench, status: "warning", metricKey: "machine", riskForecast: "Hydraulic failure risk +22% — vibration anomaly detected", riskDelta: 22, recommendation: "SOP 6.1 — Mechanical Isolation & Hydraulic Inspection: Isolate Crane #3 for immediate hydraulic inspection. Schedule predictive maintenance within 4 hours." },
+  { label: "Material Type: Grade 40 Concrete", confidence: 91, icon: Package, status: "pass", metricKey: "material", riskForecast: "Curing integrity risk +8% due to ambient humidity drop", riskDelta: 8, recommendation: "SOP 5.3 — Concrete Curing & Moisture Verification: Apply curing compound to freshly poured slabs and verify moisture retention at 2-hour intervals." },
 ];
 
 const AIStatusLight = ({ phase }: { phase: AnalysisPhase }) => {
@@ -189,12 +189,12 @@ const QuickCapture = () => {
                   </div>
                 </div>
 
-                {/* ASCF Recommendation */}
+                {/* Pre-emptive Safety Directive */}
                 <div className="px-3.5 pb-3">
                   <div className="rounded-lg bg-accent/5 border border-accent/15 p-2.5 flex items-start gap-2.5">
                     <ClipboardCheck className="h-3.5 w-3.5 mt-0.5 shrink-0 text-accent" />
                     <div className="flex-1 min-w-0">
-                      <p className="clamp-body text-accent/60 uppercase tracking-wider font-medium mb-0.5 text-[9px]">ASCF Recommendation</p>
+                      <p className="clamp-body text-accent/60 uppercase tracking-wider font-medium mb-0.5 text-[9px]">Pre-emptive Safety Directive</p>
                       <p className="clamp-body text-foreground/80 leading-snug">{item.recommendation}</p>
                     </div>
                   </div>

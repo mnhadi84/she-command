@@ -10,11 +10,7 @@ function json(body: unknown, status = 200) {
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Use POST" }, 405);
-  const token = req.headers.get("Authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
-  if (!token) return json({ error: "Sign in to analyze photos" }, 401);
-  const auth = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "");
-  const { data, error } = await auth.auth.getUser(token);
-  if (error || !data.user) return json({ error: "Sign in to analyze photos" }, 401);
+  // Public endpoint: no sign-in required (owner's choice). Size and format limits still apply.
   if (Number(req.headers.get("Content-Length") || 0) > 8_100_000) return json({ error: "Photo is too large" }, 413);
   let photo;
   try {

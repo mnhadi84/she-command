@@ -47,8 +47,8 @@ export const zoneInfo: Record<Exclude<WorkZone, "">, ZoneInfo> = {
     tags: ["Overhead Stringing", "Shared TNB/TM Poles", "Ladder Work"],
     checks: [
       { label: "Pole base sound / decay check", priority: "high" },
-      { label: "Ladder 4:1 ratio secured", priority: "high" },
-      { label: "100% tie-off harness", priority: "high" },
+      { label: "Ladder Inspection & 4:1 Securing Verified", priority: "high" },
+      { label: "Full Body Harness & Pole Strap Inspected", priority: "high" },
     ],
   },
   "Underground Manhole & Chamber": {
@@ -65,7 +65,8 @@ export const zoneInfo: Record<Exclude<WorkZone, "">, ZoneInfo> = {
     tier: "Critical",
     tags: ["Rooftop PV", "Inverter Mounting", "DC Stringing"],
     checks: [
-      { label: "Lifeline anchored", priority: "high" },
+      { label: "Skylift / MEWP DOSH PMA & Operator Competency verified", priority: "high" },
+      { label: "100% Tie-off Full Body Harness & Lifeline Rigged", priority: "high" },
       { label: "Fragile roof / skylight barriers verified", priority: "high" },
       { label: "DC isolator LOTO active", priority: "high" },
     ],

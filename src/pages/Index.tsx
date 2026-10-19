@@ -108,6 +108,52 @@ const loadPlant = (): PlantChecks => {
   try { return { operator: false, dailyLog: false, safetyDevices: false, ...JSON.parse(localStorage.getItem(PLANT_KEY) || "{}") }; } catch { return { operator: false, dailyLog: false, safetyDevices: false }; }
 };
 
+const WAH_KEY = "she-analytics-wah";
+type LadderKey = "structure" | "setup" | "contact";
+type MewpKey = "pma" | "operator" | "preop" | "restraint";
+type WahState = {
+  harness: boolean;
+  equipment: "" | "ladder" | "mewp";
+  ladder: Record<LadderKey, boolean>;
+  mewp: Record<MewpKey, boolean>;
+  pmaNo: string;
+};
+const LADDER_ITEMS: { key: LadderKey; label: string; hint: string }[] = [
+  { key: "structure", label: "Ladder Structural Condition", hint: "Rungs, stiles, non-slip rubber feet intact; fiberglass/non-conductive near power lines." },
+  { key: "setup", label: "Ladder Setup & Securing", hint: "Tied off at top/base, firm level ground, 4:1 slope angle ratio." },
+  { key: "contact", label: "Three points of contact maintained during ascent/descent", hint: "" },
+];
+const MEWP_ITEMS: { key: MewpKey; label: string; hint: string }[] = [
+  { key: "pma", label: "Valid DOSH PMA Certificate", hint: "Perakuan Kelayakan Mesin Angkat active and displayed on machine." },
+  { key: "operator", label: "Competent Operator Certification", hint: "Valid CIDB / authorized MEWP operator card verified." },
+  { key: "preop", label: "Pre-Operation Mechanical & Hydraulic Check", hint: "Outriggers fully deployed with base pads, ground stable, emergency lowering valve operational, zero hydraulic leaks." },
+  { key: "restraint", label: "Basket Fall Restraint", hint: "Lanyard tethered to designated harness anchor inside basket, not on guardrails." },
+];
+const defaultWah = (): WahState => ({
+  harness: false,
+  equipment: "",
+  ladder: { structure: false, setup: false, contact: false },
+  mewp: { pma: false, operator: false, preop: false, restraint: false },
+  pmaNo: "",
+});
+const loadWah = (): WahState => {
+  const d = defaultWah();
+  try {
+    const p = JSON.parse(localStorage.getItem(WAH_KEY) || "{}");
+    return { ...d, ...p, ladder: { ...d.ladder, ...p.ladder }, mewp: { ...d.mewp, ...p.mewp } };
+  } catch { return d; }
+};
+const CheckRow = ({ label, hint, ok, onClick }: { label: string; hint?: string; ok: boolean; onClick: () => void }) => (
+  <button onClick={onClick} className={`flex w-full items-start gap-3 rounded-lg px-3 py-2.5 min-h-[48px] text-left border transition-all ${ok ? "border-secondary/30 bg-secondary/10" : "glass border-border/30"}`}>
+    <ShieldCheck className={`h-4 w-4 shrink-0 mt-0.5 ${ok ? "text-secondary" : "text-muted-foreground"}`} />
+    <div className="flex-1">
+      <p className="clamp-body font-medium text-foreground">{label}</p>
+      {hint && <p className="clamp-body text-muted-foreground">{hint}</p>}
+    </div>
+    <span className={`clamp-body font-display uppercase tracking-wider ${ok ? "text-secondary" : "text-muted-foreground"}`}>{ok ? "Verified" : "Pending"}</span>
+  </button>
+);
+
 const emptyDetails = (): UnsafeDetails => ({ severity: "", description: "", assignTo: "" });
 
 const loadStatuses = (): Record<string, Status> => {
@@ -234,6 +280,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
     try { return localStorage.getItem(AMBIENT_TEMP_KEY) || ""; } catch { return ""; }
   });
   const [plantChecks, setPlantChecks] = useState<PlantChecks>(loadPlant);
+  const [wah, setWah] = useState<WahState>(loadWah);
 
   const contextCategories = workZone && zoneRelevantCategories[workZone]
     ? categories.filter((c) => zoneRelevantCategories[workZone].includes(c.title))
@@ -274,6 +321,9 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   useEffect(() => { localStorage.setItem(MANHOLE_KEY, manholeType); }, [manholeType]);
   useEffect(() => { localStorage.setItem(GAS_KEY, JSON.stringify(gas)); }, [gas]);
   useEffect(() => { localStorage.setItem(HEIGHT_ASSET_KEY, heightAsset); }, [heightAsset]);
+  useEffect(() => { localStorage.setItem(WAH_KEY, JSON.stringify(wah)); }, [wah]);
+  const showLadder = wah.equipment === "ladder" || workZone === "Aerial Fiber & Poles" || workZone === "Building Risers & MDF";
+  const showMewp = wah.equipment === "mewp" || workZone === "Solar Installation (TESB)";
   const hazardousAtmosphere = manholeType === "entry" && gasOutOfRange(gas);
   useEffect(() => { localStorage.setItem(AMBIENT_TEMP_KEY, ambientTemp); }, [ambientTemp]);
   useEffect(() => { localStorage.setItem(PLANT_KEY, JSON.stringify(plantChecks)); }, [plantChecks]);
@@ -396,6 +446,56 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                             <div className="rounded-lg p-3 border border-safety-orange/30 bg-safety-orange/10">
                               <p className="clamp-body font-semibold text-safety-orange">Rooftop Solar Reminder</p>
                               <p className="clamp-body text-muted-foreground mt-1">Verify edge protection is installed and fragile roof / skylight covers are in place before stepping onto the roof.</p>
+                            </div>
+                          )}
+
+                          {/* Universal mandatory harness check */}
+                          <div className={`rounded-lg p-3 border space-y-2 ${wah.harness ? "border-secondary/30 bg-secondary/10" : "border-unsafe/50 bg-unsafe/10"}`}>
+                            <button
+                              onClick={() => setWah((w) => ({ ...w, harness: !w.harness }))}
+                              className="flex w-full items-start gap-3 text-left min-h-[48px]"
+                            >
+                              {wah.harness ? <ShieldCheck className="h-5 w-5 text-secondary shrink-0 mt-0.5" /> : <AlertTriangle className="h-5 w-5 text-unsafe shrink-0 mt-0.5" />}
+                              <div className="flex-1">
+                                <p className="clamp-body font-semibold text-foreground">Full-Body Harness &amp; Fall Arrest Compliance <span className="text-unsafe">*</span></p>
+                                <p className="clamp-body text-muted-foreground">100% tie-off, twin lanyard with shock absorber, inspected condition.</p>
+                              </div>
+                              <span className={`clamp-body font-display uppercase tracking-wider px-2 py-0.5 rounded-full ${wah.harness ? "bg-secondary/20 text-secondary" : "bg-unsafe/20 text-unsafe"}`}>{wah.harness ? "Yes" : "No"}</span>
+                            </button>
+                            {!wah.harness && (
+                              <p className="clamp-body font-bold text-unsafe">CRITICAL VIOLATION: Zero tolerance for non-compliance on fall protection.</p>
+                            )}
+                          </div>
+
+                          {/* Access equipment */}
+                          <p className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground">Access Equipment</p>
+                          <div className="flex gap-2">
+                            {([["ladder", "Ladder"], ["mewp", "Skylift / MEWP"]] as const).map(([k, l]) => (
+                              <button key={k} onClick={() => setWah((w) => ({ ...w, equipment: w.equipment === k ? "" : k }))} className={`flex-1 rounded-lg px-2 py-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${wah.equipment === k ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>{l}</button>
+                            ))}
+                          </div>
+
+                          {showLadder && (
+                            <div className="rounded-lg p-3 border border-safety-orange/30 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                              <p className="font-display clamp-body font-semibold uppercase tracking-wider text-safety-orange">Ladder Safety Verification</p>
+                              {LADDER_ITEMS.map((i) => (
+                                <CheckRow key={i.key} label={i.label} hint={i.hint} ok={wah.ladder[i.key]} onClick={() => setWah((w) => ({ ...w, ladder: { ...w.ladder, [i.key]: !w.ladder[i.key] } }))} />
+                              ))}
+                            </div>
+                          )}
+
+                          {showMewp && (
+                            <div className="rounded-lg p-3 border border-safety-orange/30 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                              <p className="font-display clamp-body font-semibold uppercase tracking-wider text-safety-orange">Skylift / MEWP Verification</p>
+                              <input
+                                value={wah.pmaNo}
+                                onChange={(e) => setWah((w) => ({ ...w, pmaNo: e.target.value }))}
+                                placeholder="PMA Certificate No. (e.g. PMA-WP-12345)"
+                                className="w-full min-h-[48px] rounded-md bg-muted/60 border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                              />
+                              {MEWP_ITEMS.map((i) => (
+                                <CheckRow key={i.key} label={i.label} hint={i.hint} ok={wah.mewp[i.key]} onClick={() => setWah((w) => ({ ...w, mewp: { ...w.mewp, [i.key]: !w.mewp[i.key] } }))} />
+                              ))}
                             </div>
                           )}
                         </div>
@@ -576,6 +676,12 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                 "",
                 "── CONTEXT SELECTIONS ──",
                 `Working at Height Asset: ${heightAsset === "solar" ? "Rooftop Solar (TESB)" : heightAsset === "pole" ? "Utility Pole" : heightAsset === "tower" ? "Tower / Riser" : "Not Set"}`,
+                `  Harness & Fall Arrest Compliance: ${wah.harness ? "✅ Compliant" : "🔴 NON-COMPLIANT — CRITICAL VIOLATION"}`,
+                ...(showLadder ? LADDER_ITEMS.map((i) => `  Ladder — ${i.label}: ${wah.ladder[i.key] ? "✅ Verified" : "🔴 Unverified"}`) : []),
+                ...(showMewp ? [
+                  `  Skylift PMA No.: ${wah.pmaNo || "Not Recorded"}`,
+                  ...MEWP_ITEMS.map((i) => `  Skylift — ${i.label}: ${wah.mewp[i.key] ? "✅ Verified" : "🔴 Unverified"}`),
+                ] : []),
                 `Manhole Classification: ${manholeType === "shallow" ? "Non-Entry / Shallow (< 1.2m)" : manholeType === "entry" ? "Entry-Required Standard (≥ 1.2m – 3.0m)" : "Not Set"}`,
                 ...(manholeType === "entry"
                   ? (Object.keys(GAS_LIMITS) as GasKey[]).map((k) => `  ${GAS_LIMITS[k].label}: ${gas[k] ? gas[k] + " " + GAS_LIMITS[k].unit : "Not Recorded"} (target ${GAS_LIMITS[k].target})`)

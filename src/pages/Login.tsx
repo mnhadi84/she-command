@@ -18,7 +18,7 @@ const Login = () => {
   const [showRegister, setShowRegister] = useState(false);
   const [regName, setRegName] = useState("");
   const [regStaffId, setRegStaffId] = useState("");
-  const [regProjectCode, setRegProjectCode] = useState("NEOM-01");
+  const [regProjectCode, setRegProjectCode] = useState("HSE-8801");
   const [isRegistering, setIsRegistering] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -52,7 +52,7 @@ const Login = () => {
         setShowRegister(false);
         setRegName("");
         setRegStaffId("");
-        setRegProjectCode("NEOM-01");
+        setRegProjectCode("HSE-8801");
       }
     } catch {
       toast({ title: "Error", description: "An unexpected error occurred.", variant: "destructive" });
@@ -66,14 +66,14 @@ const Login = () => {
 
   return (
     <div className="relative h-screen flex items-center justify-center px-4 overflow-hidden">
-      {/* NEOM Background */}
+      {/* Dark Industrial Gradient Background */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/images/neom-bg.jpg')" }}
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(135deg, hsl(220, 25%, 10%) 0%, hsl(220, 20%, 6%) 100%)" }}
       />
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0" style={{
-        background: "linear-gradient(180deg, rgba(10,14,20,0.55) 0%, rgba(10,14,20,0.4) 35%, rgba(10,14,20,0.7) 65%, rgba(10,14,20,0.95) 100%)"
+      {/* Subtle Glassmorphic Backdrop Overlay */}
+      <div className="absolute inset-0 backdrop-blur-[2px]" style={{
+        background: "radial-gradient(circle at 50% 30%, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 45%, transparent 70%)"
       }} />
 
       {/* Content */}

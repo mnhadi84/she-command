@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, ScanLine, ShieldCheck, Wrench, Package, CheckCircle2, Loader2, ChevronRight, TrendingUp, AlertTriangle, ClipboardCheck } from "lucide-react";
+import { Camera, ScanLine, ShieldCheck, Zap, Cable, CheckCircle2, Loader2, ChevronRight, TrendingUp, AlertTriangle, ClipboardCheck } from "lucide-react";
 
 type AnalysisPhase = "idle" | "scanning" | "detecting" | "complete";
 
@@ -49,6 +49,20 @@ const QuickCapture = () => {
   const [phase, setPhase] = useState<AnalysisPhase>("idle");
   const [results, setResults] = useState<DetectedItem[]>([]);
 
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
+
+  const openCamera = () => fileRef.current?.click();
+
+  const onPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    if (photo) URL.revokeObjectURL(photo);
+    setPhoto(URL.createObjectURL(f));
+    handleCapture();
+  };
+
   const handleCapture = () => {
     setPhase("scanning");
     setResults([]);
@@ -62,6 +76,8 @@ const QuickCapture = () => {
   const reset = () => {
     setPhase("idle");
     setResults([]);
+    if (photo) URL.revokeObjectURL(photo);
+    setPhoto(null);
   };
 
   return (
@@ -76,7 +92,7 @@ const QuickCapture = () => {
 
       {/* Capture Button */}
       <button
-        onClick={phase === "complete" ? reset : handleCapture}
+        onClick={phase === "complete" ? reset : openCamera}
         disabled={phase !== "idle" && phase !== "complete"}
         className={`w-full rounded-xl p-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider transition-all duration-500 ${
           phase === "idle"
@@ -106,6 +122,22 @@ const QuickCapture = () => {
         )}
       </button>
 
+      <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={onPhoto} />
+
+      {photo && (
+        <div className="relative overflow-hidden rounded-xl border border-accent/20">
+          <img src={photo} alt="Captured site photo" className="w-full max-h-64 object-cover" />
+          {phase !== "complete" && (
+            <div className="absolute inset-0 bg-background/40 flex items-center justify-center">
+              <ScanLine className="h-12 w-12 text-accent animate-pulse" />
+            </div>
+          )}
+          <div className="absolute top-2 right-2 rounded-full glass-strong px-2 py-1">
+            <AIStatusLight phase={phase} />
+          </div>
+        </div>
+      )}
+
       {/* Analysis Animation */}
       {(phase === "scanning" || phase === "detecting") && (
         <div className="glass rounded-xl p-6 border border-accent/20 animate-in fade-in duration-300">
@@ -121,7 +153,7 @@ const QuickCapture = () => {
               <p className="clamp-body text-muted-foreground mt-1">
                 {phase === "scanning"
                   ? "Preparing image for analysis"
-                  : "Detecting PPE, machine health & materials"}
+                  : "Detecting PPE, LOTO isolation & fiber containment"}
               </p>
             </div>
             <div className="w-full h-1 rounded-full bg-muted overflow-hidden">

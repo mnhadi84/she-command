@@ -46,7 +46,7 @@ describe("direct Google camera analysis", () => {
   it("falls back to simulated findings when every model stays busy", async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response("busy", { status: 503 }));
     const result = await analyzePhoto(photo, "test-only", fetcher, 30_000, 0);
-    expect(fetcher).toHaveBeenCalledTimes(10);
+    expect(fetcher).toHaveBeenCalledTimes(6);
     expect(result.source).toBe("simulated");
     expect(result.message).toContain("HTTP 503");
   });

@@ -448,6 +448,56 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                               <p className="clamp-body text-muted-foreground mt-1">Verify edge protection is installed and fragile roof / skylight covers are in place before stepping onto the roof.</p>
                             </div>
                           )}
+
+                          {/* Universal mandatory harness check */}
+                          <div className={`rounded-lg p-3 border space-y-2 ${wah.harness ? "border-secondary/30 bg-secondary/10" : "border-unsafe/50 bg-unsafe/10"}`}>
+                            <button
+                              onClick={() => setWah((w) => ({ ...w, harness: !w.harness }))}
+                              className="flex w-full items-start gap-3 text-left min-h-[48px]"
+                            >
+                              {wah.harness ? <ShieldCheck className="h-5 w-5 text-secondary shrink-0 mt-0.5" /> : <AlertTriangle className="h-5 w-5 text-unsafe shrink-0 mt-0.5" />}
+                              <div className="flex-1">
+                                <p className="clamp-body font-semibold text-foreground">Full-Body Harness &amp; Fall Arrest Compliance <span className="text-unsafe">*</span></p>
+                                <p className="clamp-body text-muted-foreground">100% tie-off, twin lanyard with shock absorber, inspected condition.</p>
+                              </div>
+                              <span className={`clamp-body font-display uppercase tracking-wider px-2 py-0.5 rounded-full ${wah.harness ? "bg-secondary/20 text-secondary" : "bg-unsafe/20 text-unsafe"}`}>{wah.harness ? "Yes" : "No"}</span>
+                            </button>
+                            {!wah.harness && (
+                              <p className="clamp-body font-bold text-unsafe">CRITICAL VIOLATION: Zero tolerance for non-compliance on fall protection.</p>
+                            )}
+                          </div>
+
+                          {/* Access equipment */}
+                          <p className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground">Access Equipment</p>
+                          <div className="flex gap-2">
+                            {([["ladder", "Ladder"], ["mewp", "Skylift / MEWP"]] as const).map(([k, l]) => (
+                              <button key={k} onClick={() => setWah((w) => ({ ...w, equipment: w.equipment === k ? "" : k }))} className={`flex-1 rounded-lg px-2 py-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${wah.equipment === k ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>{l}</button>
+                            ))}
+                          </div>
+
+                          {showLadder && (
+                            <div className="rounded-lg p-3 border border-safety-orange/30 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                              <p className="font-display clamp-body font-semibold uppercase tracking-wider text-safety-orange">Ladder Safety Verification</p>
+                              {LADDER_ITEMS.map((i) => (
+                                <CheckRow key={i.key} label={i.label} hint={i.hint} ok={wah.ladder[i.key]} onClick={() => setWah((w) => ({ ...w, ladder: { ...w.ladder, [i.key]: !w.ladder[i.key] } }))} />
+                              ))}
+                            </div>
+                          )}
+
+                          {showMewp && (
+                            <div className="rounded-lg p-3 border border-safety-orange/30 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                              <p className="font-display clamp-body font-semibold uppercase tracking-wider text-safety-orange">Skylift / MEWP Verification</p>
+                              <input
+                                value={wah.pmaNo}
+                                onChange={(e) => setWah((w) => ({ ...w, pmaNo: e.target.value }))}
+                                placeholder="PMA Certificate No. (e.g. PMA-WP-12345)"
+                                className="w-full min-h-[48px] rounded-md bg-muted/60 border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                              />
+                              {MEWP_ITEMS.map((i) => (
+                                <CheckRow key={i.key} label={i.label} hint={i.hint} ok={wah.mewp[i.key]} onClick={() => setWah((w) => ({ ...w, mewp: { ...w.mewp, [i.key]: !w.mewp[i.key] } }))} />
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
 

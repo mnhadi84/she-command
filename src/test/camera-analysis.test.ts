@@ -15,12 +15,28 @@ describe("direct Google camera analysis", () => {
   it("calls Google directly and returns structured photo findings, not workspace AI", async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({ candidates: [{ finishReason: "STOP", content: { parts: [{ text: JSON.stringify([simulatedFindings[1]]) }] } }] })));
     const result = await analyzePhoto(photo, "test-only-not-a-credential", fetcher);
-    expect(fetcher.mock.calls[0][0]).toBe("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent");
+    expect(fetcher.mock.calls[0][0]).toBe("https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent");
     const body = JSON.parse(fetcher.mock.calls[0][1].body);
     expect(body.contents[0].parts[1].inlineData).toEqual({ data: photo.image, mimeType: "image/jpeg" });
     expect(result.source).toBe("gemini");
     expect(result.findings[0].label).toBe("Solar DC & EV Electrical Isolation (LOTO)");
     expect(result.findings[0].riskDelta).toBe(0);
+  });
+  it("renders decimal confidence values as whole-number percentages", () => {
+    const percent = (confidence: number) => parseFindings([{ ...simulatedFindings[0], confidence }])[0].confidence;
+    expect(percent(0.93)).toBe(93);
+    expect(percent(0.89)).toBe(89);
+    expect(percent(1)).toBe(100);
+    expect(percent(0)).toBe(0);
+    expect(percent(96)).toBe(96);
+    expect(percent(92.6)).toBe(93);
+  });
+  it("normalizes decimal Google confidence before returning findings", async () => {
+    const finding = { ...simulatedFindings[1], confidence: 0.89 };
+    const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({ candidates: [{ finishReason: "STOP", content: { parts: [{ text: JSON.stringify([finding]) }] } }] })));
+    const result = await analyzePhoto(photo, "test-only", fetcher);
+    expect(result.source).toBe("gemini");
+    expect(result.findings[0].confidence).toBe(89);
   });
   it("falls back on Google errors without retrying", async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response("provider error", { status: 403 }));

@@ -24,6 +24,12 @@ export function fallback(message: string): AnalysisResult {
   return { findings: simulatedFindings, source: "simulated", message };
 }
 
+// Google may report confidence as a 0-1 fraction or a 0-100 percentage. Render both as whole percentages.
+export function normalizeConfidence(value: number): number {
+  const percent = value <= 1 ? value * 100 : value;
+  return Math.min(100, Math.max(0, Math.round(percent)));
+}
+
 export function parseFindings(value: unknown): Finding[] {
   if (!Array.isArray(value) || value.length > 8) throw new Error("Invalid findings");
   return value.map((item: unknown) => {
@@ -35,7 +41,7 @@ export function parseFindings(value: unknown): Finding[] {
     if (!["pass", "warning", "fail"].includes(String(f.status)) || !["ppe", "electrical", "fiber"].includes(String(f.metricKey))) throw new Error("Invalid finding category");
     if (typeof f.confidence !== "number" || !Number.isFinite(f.confidence) || f.confidence < 0 || f.confidence > 100) throw new Error("Invalid confidence");
     if (typeof f.riskDelta !== "number" || !Number.isFinite(f.riskDelta) || f.riskDelta < 0 || f.riskDelta > 100) throw new Error("Invalid risk");
-    return { label: f.label as string, confidence: f.confidence, status: f.status as Finding["status"], metricKey: f.metricKey as Finding["metricKey"], riskForecast: f.riskForecast as string, riskDelta: f.riskDelta, recommendation: f.recommendation as string };
+    return { label: f.label as string, confidence: normalizeConfidence(f.confidence), status: f.status as Finding["status"], metricKey: f.metricKey as Finding["metricKey"], riskForecast: f.riskForecast as string, riskDelta: f.riskDelta, recommendation: f.recommendation as string };
   });
 }
 

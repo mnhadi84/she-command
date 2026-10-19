@@ -752,6 +752,16 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                 `TESB Solar (Work at Height): ${statuses[CAT.height] ?? "Pending"} | Electrical/DC LOTO: ${statuses[CAT.electrical] ?? "Pending"}`,
                 `Charge N Go EV Hub (Trenching): ${statuses[CAT.underground] ?? "Pending"} | TMP: ${statuses[CAT.tmp] ?? "Pending"}`,
                 "",
+                "── ENVIRONMENTAL TELEMETRY (LIVE) ──",
+                (() => {
+                  try {
+                    const h = JSON.parse(localStorage.getItem("she-analytics-haze") || "null");
+                    if (!h) return "Haze / API (IPU): Not Available";
+                    return `Haze / API (IPU): ${h.api} — DOE Status: ${h.status} (PM2.5 ${h.pm25} µg/m³, PM10 ${h.pm10} µg/m³, source: ${h.source === "gps" ? "GPS location" : "Kuala Lumpur default"}, ${h.time})` +
+                      (h.api > 100 ? "\n⚠️ DOE HAZE ALERT (API > 100): Mandatory N95/P2 particulate respirators required for all outdoor OSP trenching, aerial pole climbing, and TESB rooftop solar operations." : "");
+                  } catch { return "Haze / API (IPU): Not Available"; }
+                })(),
+                "",
                 "── METHODOLOGY ──",
 "Aligned with TIME OSH Management System, Cooper's Reciprocal Safety Culture Model, and DOSH Regulatory Codes.",
                 "",

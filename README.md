@@ -1,73 +1,62 @@
-# Welcome to your Lovable project
+# SHE Command
 
-## Project info
+System Goal: Build the frontend shell for "SHE-Analytics". Use a "Futuristic Command Center" aesthetic with Glassmorphism.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+1. Visual Brand: > - Primary Colors: Safety Red (#E63946), Tech Green (#43A047), and Electric Blue (#0077B6).
 
-## How can I edit this code?
+Background: Deep Slate/Dark Navy.
 
-There are several ways of editing your application.
+Typography: Modern, clean sans-serif.
 
-**Use Lovable**
+2. Dashboard Layout:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Top Header: App Name "SHE-Analytics" with a placeholder for a logo.
 
-Changes made via Lovable will be committed automatically to this repo.
+Hero Section: A "Safety Status" card showing a mock percentage (e.g., "94% Site Compliance").
 
-**Use your preferred IDE**
+3. The Big Eight Categories: Create 8 interactive cards for:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Working at Height
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Scaffolding & Temp Structures
 
-Follow these steps:
+Hot Work
+
+Excavation Work
+
+Heavy Lifting Work
+
+Chemical Handling
+
+Manual Handling Work
+
+Housekeeping
+
+4. Basic Inspection Logic:
+
+Inside each card, implement a Three-Way Toggle: [Safe] [Unsafe] [N/A].
+
+If 'Unsafe' is clicked, show a placeholder text area: "Describe the hazard..." and a button "Add Photo".
+
+5. Navigation: > - Add a simple bottom navigation bar with icons for: "Dashboard", "SOP Library", and "Reports".
+
+This project was built with [Lovable](https://lovable.dev).
+
+## Build with Lovable
+
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/c50c088c-1f19-4154-9235-6d79af7aeb31).
+
+- **Ship faster**: describe what you want to build and Lovable handles the code.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+
+## Development
+
+Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
+git clone <this-repository-url>
+cd <repository-name>
 npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)

@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Wrench, Package, TrendingUp, TrendingDown, AlertTriangle, Brain } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Zap, Cable, Wrench, Package, TrendingUp, TrendingDown, AlertTriangle, Brain } from "lucide-react";
 import { useMemo } from "react";
 import {
   LineChart,

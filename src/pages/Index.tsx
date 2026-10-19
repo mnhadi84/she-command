@@ -23,6 +23,7 @@ import {
   HardHat,
   Wrench,
   AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -326,6 +327,37 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   const showMewp = wah.equipment === "mewp" || workZone === "Solar Installation (TESB)";
   const hazardousAtmosphere = manholeType === "entry" && gasOutOfRange(gas);
   useEffect(() => { localStorage.setItem(AMBIENT_TEMP_KEY, ambientTemp); }, [ambientTemp]);
+  const [tempSource, setTempSource] = useState<"gps" | "default" | "manual">(() => (localStorage.getItem(AMBIENT_TEMP_KEY + "-src") as "gps" | "default" | "manual") || "gps");
+  const [tempSyncing, setTempSyncing] = useState(false);
+  const [humidity, setHumidity] = useState<number | null>(null);
+  useEffect(() => { localStorage.setItem(AMBIENT_TEMP_KEY + "-src", tempSource); }, [tempSource]);
+  const fetchWeather = async (lat: number, lon: number, src: "gps" | "default") => {
+    try {
+      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m`);
+      const j = await r.json();
+      const t = j?.current?.temperature_2m;
+      if (typeof t === "number") {
+        setAmbientTemp((Math.round(t * 10) / 10).toFixed(1));
+        setHumidity(j.current.relative_humidity_2m ?? null);
+        setTempSource(src);
+      }
+    } catch { /* offline — keep manual entry */ }
+    setTempSyncing(false);
+  };
+  const syncAmbientTemp = () => {
+    setTempSyncing(true);
+    const fallback = () => fetchWeather(3.139, 101.6869, "default");
+    if (!navigator.geolocation) return fallback();
+    navigator.geolocation.getCurrentPosition(
+      (p) => fetchWeather(p.coords.latitude, p.coords.longitude, "gps"),
+      fallback,
+      { timeout: 8000, maximumAge: 300000 }
+    );
+  };
+  useEffect(() => {
+    if (localStorage.getItem(AMBIENT_TEMP_KEY + "-src") !== "manual") syncAmbientTemp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => { localStorage.setItem(PLANT_KEY, JSON.stringify(plantChecks)); }, [plantChecks]);
   const plantUnverified = PLANT_ITEMS.filter((i) => !plantChecks[i.key]);
 
@@ -603,23 +635,39 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
               Heat Stress &amp; Ambient Climate
             </h2>
             <div className="glass rounded-xl p-4 border border-border/20 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                          <label className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground block">
-                            Ambient Temperature (°C)
-                          </label>
-                          <input
-                            type="number"
-                            placeholder="e.g. 38"
-                            value={ambientTemp}
-                            onChange={(e) => setAmbientTemp(e.target.value)}
-                            className="w-full rounded-lg glass border border-border/40 px-4 py-3 clamp-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/40 bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          />
+                          <div className="flex items-center justify-between gap-2">
+                            <label className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground block">
+                              Ambient Temperature (°C)
+                            </label>
+                            <span className={`clamp-body font-display uppercase tracking-wider px-2 py-0.5 rounded-full border ${tempSource === "manual" ? "border-safety-orange/40 bg-safety-orange/10 text-safety-orange" : "border-secondary/40 bg-secondary/10 text-secondary"}`}>
+                              {tempSource === "manual" ? "⚠️ Manual Entry" : tempSource === "default" ? "📍 Auto (Malaysia Default)" : "📍 Auto-Detected via GPS"}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              step="0.1"
+                              placeholder={tempSyncing ? "Detecting..." : "e.g. 38"}
+                              value={ambientTemp}
+                              onChange={(e) => { setAmbientTemp(e.target.value); setTempSource("manual"); }}
+                              className="flex-1 min-h-[48px] rounded-lg glass border border-border/40 px-4 py-3 clamp-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/40 bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                            <button
+                              onClick={syncAmbientTemp}
+                              disabled={tempSyncing}
+                              aria-label="Re-sync temperature"
+                              className="flex h-12 w-12 items-center justify-center rounded-lg border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 disabled:opacity-60"
+                            >
+                              <RefreshCw className={`h-5 w-5 ${tempSyncing ? "animate-spin" : ""}`} />
+                            </button>
+                          </div>
+                          {humidity !== null && tempSource !== "manual" && (
+                            <p className="clamp-body text-muted-foreground">Relative humidity: {humidity}%</p>
+                          )}
                           {parseFloat(ambientTemp) > 37 && (
                             <div className="rounded-lg p-3 border border-destructive/40 bg-destructive/10 animate-in fade-in duration-200">
-                              <p className="clamp-body font-bold text-destructive uppercase tracking-wider">
-                                ⚠️ HI-PO RISK
-                              </p>
-                              <p className="clamp-body text-destructive/90 mt-1">
-                                Mandatory 15-minute cooling cycle every hour for outdoor trenching & rooftop solar teams.
+                              <p className="clamp-body font-bold text-destructive">
+                                ⚠️ HI-PO RISK: Mandatory 15-min cooling break every hour for outdoor trenching, pole climbing, and rooftop solar teams.
                               </p>
                             </div>
                           )}
@@ -687,8 +735,8 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                   ? (Object.keys(GAS_LIMITS) as GasKey[]).map((k) => `  ${GAS_LIMITS[k].label}: ${gas[k] ? gas[k] + " " + GAS_LIMITS[k].unit : "Not Recorded"} (target ${GAS_LIMITS[k].target})`)
                   : []),
                 hazardousAtmosphere ? "🔴 CRITICAL: HAZARDOUS ATMOSPHERE — FORCED VENTILATION MANDATORY & EVACUATE" : "",
-                `Ambient Temperature: ${ambientTemp ? ambientTemp + "°C" : "Not Recorded"}`,
-                parseFloat(ambientTemp) > 37 ? "⚠️ HI-PO RISK: Mandatory 15-min cooling cycle for outdoor trenching & rooftop solar teams." : "",
+                `Ambient Temperature: ${ambientTemp ? ambientTemp + "°C" : "Not Recorded"} (${tempSource === "manual" ? "Manually logged on-site" : tempSource === "default" ? "Auto-fetched (Malaysia default location — GPS unavailable)" : "Auto-fetched via GPS"})`,
+                parseFloat(ambientTemp) > 37 ? "⚠️ HI-PO RISK: Mandatory 15-min cooling break every hour for outdoor trenching, pole climbing, and rooftop solar teams." : "",
 "",
                 workZone === "OSP & Roadside Civils"
                   ? "── PLANT & OPERATOR VERIFICATION (OSP) ──" +

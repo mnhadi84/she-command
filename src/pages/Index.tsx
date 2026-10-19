@@ -585,6 +585,27 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                         </div>
                         )}
 
+                        {/* Hot Work Activity protocol */}
+                        {cat.title === CAT.hotwork && (
+                          <div className="glass rounded-xl p-4 border border-safety-orange/30 space-y-3">
+                            <p className="font-display clamp-body font-semibold uppercase tracking-wider text-safety-orange">Hot Work Protocol</p>
+                            <div className="flex gap-2">
+                              {([["welding", "Welding (Arc / TIG / MIG)"], ["cutting", "Cutting & Grinding (Oxy-fuel / Angle Grinder)"]] as const).map(([k, l]) => (
+                                <button key={k} onClick={() => setHotWork((h) => ({ ...h, type: k }))} className={`flex-1 rounded-lg px-2 py-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${hotWork.type === k ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>{l}</button>
+                              ))}
+                            </div>
+                            {HOT_ITEMS.map((i) => (
+                              <CheckRow key={i.key} label={i.label} hint={i.hint} ok={hotWork.checks[i.key]} onClick={() => setHotWork((h) => ({ ...h, checks: { ...h.checks, [i.key]: !h.checks[i.key] } }))} />
+                            ))}
+                            {hotUnchecked && (
+                              <div className="flex items-start gap-2 rounded-lg p-3 border border-destructive/40 bg-destructive/10">
+                                <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                                <p className="clamp-body font-bold text-destructive">STOP WORK: Hot work cannot proceed without dedicated fire extinguisher, spark containment, and certified face/eye protection.</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         {/* Underground Utilities — Plant & Machinery Verification (OSP zone only) */}
                         {cat.title === CAT.underground && workZone === "OSP & Roadside Civils" && (
                           <div className="glass rounded-xl p-4 border border-safety-orange/30 space-y-3">
@@ -738,6 +759,11 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                 `Ambient Temperature: ${ambientTemp ? ambientTemp + "°C" : "Not Recorded"} (${tempSource === "manual" ? "Manually logged on-site" : tempSource === "default" ? "Auto-fetched (Malaysia default location — GPS unavailable)" : "Auto-fetched via GPS"})`,
                 parseFloat(ambientTemp) > 37 ? "⚠️ HI-PO RISK: Mandatory 15-min cooling break every hour for outdoor trenching, pole climbing, and rooftop solar teams." : "",
 "",
+                "── HOT WORK ACTIVITY ──",
+                `  Hot Work Type: ${hotWork.type === "welding" ? "Welding (Arc / TIG / MIG)" : hotWork.type === "cutting" ? "Cutting & Grinding (Oxy-fuel / Angle Grinder)" : "Not Set"}`,
+                ...HOT_ITEMS.map((i) => `  ${i.label}: ${hotWork.checks[i.key] ? "✅ Verified" : "🔴 Unverified"}`),
+                hotUnchecked ? "  🛑 STOP WORK: Hot work cannot proceed without dedicated fire extinguisher, spark containment, and certified face/eye protection." : "",
+                "",
                 workZone === "OSP & Roadside Civils"
                   ? "── PLANT & OPERATOR VERIFICATION (OSP) ──" +
                     PLANT_ITEMS.map(

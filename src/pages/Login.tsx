@@ -17,7 +17,7 @@ const Login = () => {
   const [showRegister, setShowRegister] = useState(false);
   const [regName, setRegName] = useState("");
   const [regStaffId, setRegStaffId] = useState("");
-  const [regProjectCode, setRegProjectCode] = useState("HSE-8801");
+  const [regProjectCode, setRegProjectCode] = useState("TTXXXX");
   const [isRegistering, setIsRegistering] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -51,7 +51,7 @@ const Login = () => {
         setShowRegister(false);
         setRegName("");
         setRegStaffId("");
-        setRegProjectCode("HSE-8801");
+        setRegProjectCode("TTXXXX");
       }
     } catch {
       toast({ title: "Error", description: "An unexpected error occurred.", variant: "destructive" });
@@ -85,7 +85,7 @@ const Login = () => {
 
         {/* Brand Text */}
         <h1 className="font-display text-xl font-bold tracking-[0.18em] text-white mb-1 drop-shadow-lg">
-          TIME SHE-COMMAND
+          TIME SHE - ANALYTICS
         </h1>
         <p className="text-[10px] tracking-[0.2em] text-[hsl(var(--brand-cyan))] font-semibold mb-5 text-center uppercase">
           Environmental &amp; Occupational Safety Intelligence
@@ -105,7 +105,7 @@ const Login = () => {
             type="text"
             value={projectCode}
             onChange={(e) => setProjectCode(e.target.value)}
-            placeholder="HSE-8801"
+            placeholder="TTXXXX"
             className={inputClass}
           />
 

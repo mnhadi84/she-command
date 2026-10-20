@@ -61,7 +61,7 @@ const QuickCapture = () => {
     requestRef.current?.abort();
     const controller = new AbortController();
     requestRef.current = controller;
-    const timeout = setTimeout(() => controller.abort(), 45_000);
+    const timeout = setTimeout(() => controller.abort(), 30_000);
     setPhase("scanning");
     setResults([]);
     setAnalysis(null);
@@ -124,7 +124,7 @@ const QuickCapture = () => {
         {(phase === "scanning" || phase === "detecting") && (
           <>
             <Loader2 className="h-5 w-5 animate-spin" />
-            {phase === "scanning" ? "Capturing Image..." : "AI Analyzing..."}
+            {phase === "scanning" ? "Capturing Image..." : "Analyzing site hazards with Gemini..."}
           </>
         )}
         {phase === "complete" && (
@@ -161,7 +161,7 @@ const QuickCapture = () => {
             </div>
             <div className="text-center">
               <p className="font-display clamp-heading font-semibold text-foreground uppercase tracking-wider">
-                {phase === "scanning" ? "Capturing Site Image" : "AI Analyzing..."}
+                {phase === "scanning" ? "Capturing Site Image" : "Analyzing site hazards with Gemini..."}
               </p>
               <p className="clamp-body text-muted-foreground mt-1">
                 {phase === "scanning"

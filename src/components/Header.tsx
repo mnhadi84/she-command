@@ -1,4 +1,4 @@
-import { Shield, Wifi } from "lucide-react";
+import { HardHat } from "lucide-react";
 
 const Header = () => {
   return (
@@ -6,8 +6,8 @@ const Header = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Circular helmet logo */}
-          <div className="flex h-11 w-11 items-center justify-center rounded-full glass border border-secondary/30 glow-brand">
-            <Wifi className="h-6 w-6 text-secondary" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-full glass border border-accent/30 glow-blue">
+            <HardHat className="h-6 w-6 text-accent" />
           </div>
           <div>
             <h1 className="font-display text-xl font-bold tracking-wide text-foreground">

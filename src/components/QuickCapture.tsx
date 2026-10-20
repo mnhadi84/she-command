@@ -193,13 +193,13 @@ const QuickCapture = () => {
             const Icon = findingIcons[item.metricKey];
             const statusColor =
               item.status === "pass"
-                ? "text-secondary"
+                ? "text-safe"
                 : item.status === "warning"
                 ? "text-safety-orange"
                 : "text-primary";
             const borderColor =
               item.status === "pass"
-                ? "border-secondary/20"
+                ? "border-safe/30 glow-green"
                 : item.status === "warning"
                 ? "border-safety-orange/20"
                 : "border-primary/20";

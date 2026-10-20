@@ -14,7 +14,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -72,11 +72,11 @@ const MetricCard = ({
   onChange,
   unit,
   placeholder = "0",
-  accentClass = "text-secondary",
+  accentClass = "text-accent",
   children,
 }: MetricCardProps) => (
-  <div className="glass rounded-xl p-4 flex items-center gap-4 border border-border/30 hover:border-secondary/20 transition-all duration-300 group">
-    <div className="flex-shrink-0 w-10 h-10 rounded-lg glass-strong flex items-center justify-center border border-secondary/20 group-hover:border-secondary/40 transition-colors">
+  <div className="glass rounded-xl p-4 flex items-center gap-4 border border-border/30 hover:border-accent/20 transition-all duration-300 group">
+    <div className="flex-shrink-0 w-10 h-10 rounded-lg glass-strong flex items-center justify-center border border-accent/20 group-hover:border-accent/40 transition-colors">
       <Icon className={`h-5 w-5 ${accentClass}`} />
     </div>
     <div className="flex-1 min-w-0">
@@ -92,7 +92,7 @@ const MetricCard = ({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-20 rounded-lg glass border border-border/40 px-2.5 py-2 clamp-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-secondary/50 focus:border-secondary/40 bg-transparent text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        className="w-20 rounded-lg glass border border-border/40 px-2.5 py-2 clamp-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/40 bg-transparent text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
       <span className="clamp-body text-muted-foreground whitespace-nowrap">{unit}</span>
     </div>
@@ -120,10 +120,10 @@ const StatusCard = ({
   value,
   onChange,
   options,
-  accentClass = "text-secondary",
+  accentClass = "text-accent",
 }: StatusCardProps) => (
-  <div className="glass rounded-xl p-4 flex items-center gap-4 border border-border/30 hover:border-secondary/20 transition-all duration-300 group">
-    <div className="flex-shrink-0 w-10 h-10 rounded-lg glass-strong flex items-center justify-center border border-secondary/20 group-hover:border-secondary/40 transition-colors">
+  <div className="glass rounded-xl p-4 flex flex-wrap items-center gap-4 border border-border/30 hover:border-accent/20 transition-all duration-300 group">
+    <div className="flex-shrink-0 w-10 h-10 rounded-lg glass-strong flex items-center justify-center border border-accent/20 group-hover:border-accent/40 transition-colors">
       <Icon className={`h-5 w-5 ${accentClass}`} />
     </div>
     <div className="flex-1 min-w-0">
@@ -135,7 +135,7 @@ const StatusCard = ({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-lg glass border border-border/40 px-2.5 py-2 clamp-body text-foreground bg-transparent focus:outline-none focus:ring-1 focus:ring-secondary/50 focus:border-secondary/40 appearance-none cursor-pointer"
+      className="w-full min-w-0 rounded-lg glass border border-accent/20 px-2.5 py-2 clamp-body text-foreground bg-transparent focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/40 appearance-none cursor-pointer"
     >
       <option value="" className="bg-card text-foreground">Select</option>
       {options.map((o) => (
@@ -187,21 +187,22 @@ const SubSection = ({
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="space-y-3">
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 w-full group"
+        className="flex items-center gap-2 w-full group h-auto p-0 hover:bg-transparent"
       >
-        <Icon className="h-4 w-4 text-secondary" />
-        <span className="font-display clamp-heading font-semibold uppercase tracking-[0.12em] text-secondary/80 group-hover:text-secondary transition-colors">
+        <Icon className="h-4 w-4 text-accent" />
+        <span className="font-display clamp-heading font-semibold uppercase tracking-[0.12em] text-accent/80 group-hover:text-accent transition-colors">
           {title}
         </span>
-        <div className="flex-1 h-px bg-secondary/10" />
+        <div className="flex-1 h-px bg-accent/10" />
         {open ? (
           <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
         ) : (
           <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
         )}
-      </button>
+      </Button>
       {open && <div className="grid grid-cols-1 gap-3">{children}</div>}
     </div>
   );
@@ -215,20 +216,20 @@ const CO2Summary = ({ co2: co2Val, zone }: { co2: string; zone: string }) => {
   const co2 = parseFloat(co2Val) || 0;
   const level = co2 > 500 ? "Critical" : co2 > 200 ? "Moderate" : co2 > 0 ? "Low" : "—";
   const levelColor =
-    co2 > 500 ? "text-primary" : co2 > 200 ? "text-safety-orange" : "text-secondary";
+    co2 > 500 ? "text-primary" : co2 > 200 ? "text-safety-orange" : "text-safe";
 
   return (
-    <div className="glass rounded-xl p-4 border border-secondary/20 hover:border-secondary/30 transition-all duration-300">
+    <div className="glass rounded-xl p-4 border border-accent/20 hover:border-accent/30 transition-all duration-300">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 rounded-lg glass-strong flex items-center justify-center border border-secondary/20">
-          <Factory className="h-5 w-5 text-secondary" />
+        <div className="w-10 h-10 rounded-lg glass-strong flex items-center justify-center border border-accent/20">
+          <Factory className="h-5 w-5 text-accent" />
         </div>
         <div>
           <p className="font-display clamp-heading font-semibold text-foreground uppercase tracking-wider">
             Carbon Footprint
           </p>
           <p className="clamp-body text-muted-foreground">
-            CO₂ impact per zone: <span className="text-secondary">{zone || "No zone"}</span>
+            CO₂ impact per zone: <span className="text-accent">{zone || "No zone"}</span>
           </p>
         </div>
       </div>
@@ -246,7 +247,7 @@ const CO2Summary = ({ co2: co2Val, zone }: { co2: string; zone: string }) => {
       </div>
       {co2 > 0 && (
         <div className="mt-3">
-          <GaugeBar label="Offset Target" value={Math.min(co2, 500)} max={500} color="bg-gradient-to-r from-secondary to-accent" />
+          <GaugeBar label="Offset Target" value={Math.min(co2, 500)} max={500} color="bg-gradient-to-r from-safe to-accent" />
         </div>
       )}
     </div>
@@ -288,8 +289,8 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
   const renewablePct = totalWater > 0 ? (rainwater / totalWater) * 100 : 0;
 
   return (
-    <div className="space-y-5">
-      <h2 className="font-display clamp-heading font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+    <div className="esg-section space-y-5">
+      <h2 className="font-display clamp-heading font-semibold uppercase tracking-[0.15em] text-accent">
         Sustainability &amp; ESG Metrics
       </h2>
 
@@ -302,6 +303,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           value={values.sourceCert}
           onChange={(v) => onChange("sourceCert", v)}
           options={certOptions}
+          accentClass="text-safe"
         />
         <StatusCard
           icon={Trash2}
@@ -310,11 +312,13 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           value={values.disposalChain}
           onChange={(v) => onChange("disposalChain", v)}
           options={disposalOptions}
+          accentClass="text-safe"
         />
         <MetricCard
           icon={Recycle}
           title="Fiber Offcut Recycling"
           subtitle="Fiber offcut / shard recovery rate"
+          accentClass="text-safe"
           value={values.fiberRecycling}
           onChange={(v) => onChange("fiberRecycling", v)}
           unit="%"
@@ -328,6 +332,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           icon={Zap}
           title="Solar PV Generation Offset"
           subtitle="TESB energy yield"
+          accentClass="text-safe"
           value={values.solarOffset}
           onChange={(v) => onChange("solarOffset", v)}
           unit="kWh"
@@ -353,7 +358,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           value={values.energySaver}
           onChange={(v) => onChange("energySaver", v)}
           options={energySaverOptions}
-          accentClass="text-secondary"
+          accentClass="text-accent"
         />
         <MetricCard
           icon={Factory}
@@ -363,7 +368,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           onChange={(v) => onChange("machineryHours", v)}
           unit="hrs"
           placeholder="0"
-          accentClass="text-secondary"
+          accentClass="text-accent"
         />
       </SubSection>
 
@@ -386,12 +391,12 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           onChange={(v) => onChange("municipalWater", v)}
           unit="m³"
           placeholder="0"
-          accentClass="text-secondary"
+          accentClass="text-accent"
         />
         {totalWater > 0 && (
-          <div className="glass rounded-xl p-4 border border-secondary/20">
+          <div className="glass rounded-xl p-4 border border-accent/20">
             <div className="flex items-center gap-3 mb-2">
-              <Leaf className="h-4 w-4 text-secondary" />
+              <Leaf className="h-4 w-4 text-accent" />
               <span className="font-display clamp-heading font-semibold text-foreground uppercase tracking-wider">
                 Renewable Water Ratio
               </span>
@@ -400,7 +405,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
               label={`${rainwater.toFixed(1)} m³ renewable / ${totalWater.toFixed(1)} m³ total`}
               value={renewablePct}
               max={100}
-              color="bg-gradient-to-r from-accent to-secondary"
+              color="bg-gradient-to-r from-safe to-accent"
             />
           </div>
         )}
@@ -416,7 +421,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           onChange={(v) => onChange("co2Impact", v)}
           unit="kg"
           placeholder="0"
-          accentClass="text-secondary"
+          accentClass="text-accent"
         />
         <CO2Summary co2={values.co2Impact} zone={workZone} />
       </SubSection>

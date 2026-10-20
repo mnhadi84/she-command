@@ -286,6 +286,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   useEffect(() => { try { localStorage.setItem("she-analytics-assessor", assessorName); } catch { toast.error("Assessor name could not be saved on this device."); } }, [assessorName]);
   const [statuses, setStatuses] = useState<Record<string, Status>>(loadStatuses);
   const [details, setDetails] = useState<Record<string, UnsafeDetails>>(loadDetails);
+  const [evidencePhotos, setEvidencePhotos] = useState<Record<string, string | undefined>>({});
   const [eiaValues, setEIAValues] = useState<Record<string, string>>(loadEIA);
   const [esgValues, setESGValues] = useState<ESGValues>(loadESG);
   const [syncing, setSyncing] = useState(false);
@@ -491,6 +492,8 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                         unsafeDetails={details[cat.title] || emptyDetails()}
                         onUnsafeDetailsChange={(d) => handleDetailsChange(cat.title, d)}
                         showValidation={showValidation}
+                        evidencePhoto={evidencePhotos[cat.title]}
+                        onEvidencePhotoChange={(photo) => setEvidencePhotos((previous) => ({ ...previous, [cat.title]: photo }))}
                       />
 
                       {/* Working at Height — asset toggle */}

@@ -127,9 +127,9 @@ const PredictiveAnalytics = () => {
         <div className="glass-strong px-4 py-3 flex items-center gap-3 border-b border-border/30">
           <button
             onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-lg glass flex items-center justify-center border border-border/20 hover:border-accent/30 transition-colors"
+            className="w-9 h-9 rounded-lg glass flex items-center justify-center border border-border/20 hover:border-secondary/30 transition-colors"
           >
-            <ArrowLeft className="h-4 w-4 text-accent" />
+            <ArrowLeft className="h-4 w-4 text-secondary" />
           </button>
           <div className="flex-1">
             <h1 className="font-display clamp-heading font-bold uppercase tracking-[0.12em] text-foreground">
@@ -137,14 +137,14 @@ const PredictiveAnalytics = () => {
             </h1>
             <p className="clamp-body text-muted-foreground">AI-driven trend analysis</p>
           </div>
-          <Brain className="h-5 w-5 text-accent animate-pulse" />
+          <Brain className="h-5 w-5 text-secondary animate-pulse" />
         </div>
 
         <main className="px-4 py-6 pb-20 space-y-5">
           {/* Metric Header */}
           <div className="glass rounded-xl p-4 border border-border/20 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl glass-strong flex items-center justify-center border border-accent/20">
-              <Icon className="h-6 w-6 text-accent" />
+            <div className="w-12 h-12 rounded-xl glass-strong flex items-center justify-center border border-secondary/20">
+              <Icon className="h-6 w-6 text-secondary" />
             </div>
             <div className="flex-1">
               <p className="font-display clamp-heading font-bold text-foreground uppercase tracking-wider">
@@ -249,13 +249,13 @@ const PredictiveAnalytics = () => {
           {/* AI Pre-emptive Action */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Brain className="h-4 w-4 text-accent" />
+              <Brain className="h-4 w-4 text-secondary" />
               <h2 className="font-display clamp-heading font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 AI Pre-emptive Action
               </h2>
             </div>
-            <div className="glass rounded-xl p-4 border border-accent/20 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-accent rounded-full" />
+            <div className="glass rounded-xl p-4 border border-secondary/20 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-secondary rounded-full" />
               <p className="clamp-body text-foreground leading-relaxed pl-3">
                 {config.preemptiveAction}
               </p>
@@ -276,9 +276,9 @@ const PredictiveAnalytics = () => {
                     <button
                       key={key}
                       onClick={() => navigate(`/predictive?metric=${key}`)}
-                      className="flex-1 glass rounded-xl p-3 border border-border/20 hover:border-accent/30 transition-all flex flex-col items-center gap-2"
+                      className="flex-1 glass rounded-xl p-3 border border-border/20 hover:border-secondary/30 transition-all flex flex-col items-center gap-2"
                     >
-                      <MIcon className="h-4 w-4 text-accent" />
+                      <MIcon className="h-4 w-4 text-secondary" />
                       <span className="clamp-body font-semibold text-foreground text-center">
                         {m.label}
                       </span>

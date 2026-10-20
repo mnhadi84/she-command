@@ -39,7 +39,7 @@ const hazeStyle = (api: number) =>
   api <= 50
     ? "text-secondary border-secondary/40"
     : api <= 100
-    ? "text-accent border-accent/40"
+    ? "text-secondary border-secondary/40"
     : api <= 200
     ? "text-safety-orange border-safety-orange/50"
     : "text-destructive border-destructive/50";
@@ -136,7 +136,7 @@ const LiveEnvironment = () => {
 
   return (
     <div className="space-y-2">
-      <div className="glass rounded-xl p-4 border border-accent/15 space-y-4">
+      <div className="glass rounded-xl p-4 border border-secondary/15 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
@@ -150,7 +150,7 @@ const LiveEnvironment = () => {
           </div>
           <button
             onClick={refresh}
-            className="flex items-center gap-1.5 clamp-body text-muted-foreground hover:text-accent transition-colors"
+            className="flex items-center gap-1.5 clamp-body text-muted-foreground hover:text-secondary transition-colors"
           >
             <RefreshCw className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} />
             {lastUpdated}
@@ -164,12 +164,12 @@ const LiveEnvironment = () => {
             <p className="clamp-body text-muted-foreground">Temp</p>
           </div>
           <div className="rounded-lg glass-strong p-2 text-center border border-border/20">
-            <CloudRain className="h-4 w-4 text-accent mx-auto mb-1" />
+            <CloudRain className="h-4 w-4 text-secondary mx-auto mb-1" />
             <p className="font-display text-lg font-bold text-foreground tabular-nums">{animRain.toFixed(1)}</p>
             <p className="clamp-body text-muted-foreground">Rain mm</p>
           </div>
           <div className="rounded-lg glass-strong p-2 text-center border border-border/20">
-            <Droplets className="h-4 w-4 text-accent mx-auto mb-1" />
+            <Droplets className="h-4 w-4 text-secondary mx-auto mb-1" />
             <p className="font-display text-lg font-bold text-foreground tabular-nums">{Math.round(animHumid)}%</p>
             <p className="clamp-body text-muted-foreground">Humidity</p>
           </div>
@@ -191,9 +191,9 @@ const LiveEnvironment = () => {
               <div className="h-full rounded-full bg-gradient-to-r from-accent to-secondary transition-all duration-700" style={{ width: `${waterPotential}%` }} />
             </div>
           </div>
-          <div className="rounded-xl glass-strong p-3 border border-accent/15">
+          <div className="rounded-xl glass-strong p-3 border border-secondary/15">
             <div className="flex items-center gap-2 mb-2">
-              <Factory className="h-3.5 w-3.5 text-accent" />
+              <Factory className="h-3.5 w-3.5 text-secondary" />
               <span className="clamp-body text-muted-foreground uppercase tracking-wider font-medium">Carbon Density</span>
             </div>
             <p className={`font-display text-2xl font-bold tabular-nums ${carbonColor}`}>{carbonDensity}</p>

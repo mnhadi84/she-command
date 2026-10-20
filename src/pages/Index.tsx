@@ -201,10 +201,10 @@ const InsightsSection = ({
     <div className="space-y-3">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between glass rounded-xl px-4 py-3 border border-border/20 hover:border-accent/20 transition-all duration-300 group"
+        className="w-full flex items-center justify-between glass rounded-xl px-4 py-3 border border-border/20 hover:border-secondary/20 transition-all duration-300 group"
       >
         <div className="flex items-center gap-2">
-          <Eye className="h-4 w-4 text-accent" />
+          <Eye className="h-4 w-4 text-secondary" />
           <span className="font-display clamp-heading font-semibold uppercase tracking-[0.12em] text-foreground">
             {title}
           </span>
@@ -250,10 +250,10 @@ const SmartStatusCard = ({
   return (
     <button
       onClick={onToggle}
-      className={`glass rounded-xl p-3 flex items-center gap-3 border ${statusColor} hover:border-accent/30 transition-all duration-300 w-full text-left`}
+      className={`glass rounded-xl p-3 flex items-center gap-3 border ${statusColor} hover:border-secondary/30 transition-all duration-300 w-full text-left`}
     >
       <div className="w-9 h-9 rounded-lg glass-strong flex items-center justify-center border border-border/20 shrink-0">
-        <Icon className="h-4 w-4 text-accent" />
+        <Icon className="h-4 w-4 text-secondary" />
       </div>
       <span className="clamp-body font-semibold text-foreground flex-1 truncate">{cat.title}</span>
       <span className={`clamp-body font-display font-bold uppercase tracking-wider ${status === "safe" ? "text-secondary" : status === "unsafe" ? "text-primary" : "text-muted-foreground"}`}>
@@ -427,7 +427,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
 
         {/* Site ID - compact */}
         <div className="glass-strong px-4 py-2 border-b border-border/30">
-          <p className="clamp-body text-accent font-medium tracking-wide">
+          <p className="clamp-body text-secondary font-medium tracking-wide">
             Active Project: <span className="text-foreground">TIME dotCom Infrastructure Operations — Central Region</span>
           </p>
           <p className="clamp-body text-muted-foreground">
@@ -487,9 +487,9 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                         <div className="glass rounded-xl p-4 border border-border/20 space-y-3">
                           <p className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground">Asset Type</p>
                           <div className="flex gap-2">
-                            <button onClick={() => setHeightAsset("solar")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${heightAsset === "solar" ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>Rooftop Solar (TESB)</button>
-                            <button onClick={() => setHeightAsset("pole")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${heightAsset === "pole" ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>Utility Pole</button>
-                            <button onClick={() => setHeightAsset("tower")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${heightAsset === "tower" ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>Tower / Riser</button>
+                            <button onClick={() => setHeightAsset("solar")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${heightAsset === "solar" ? "bg-secondary/20 border-secondary/40 text-secondary" : "glass border-border/30 text-muted-foreground hover:border-secondary/20"}`}>Rooftop Solar (TESB)</button>
+                            <button onClick={() => setHeightAsset("pole")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${heightAsset === "pole" ? "bg-secondary/20 border-secondary/40 text-secondary" : "glass border-border/30 text-muted-foreground hover:border-secondary/20"}`}>Utility Pole</button>
+                            <button onClick={() => setHeightAsset("tower")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${heightAsset === "tower" ? "bg-secondary/20 border-secondary/40 text-secondary" : "glass border-border/30 text-muted-foreground hover:border-secondary/20"}`}>Tower / Riser</button>
                           </div>
                           {heightAsset === "solar" && (
                             <div className="rounded-lg p-3 border border-safety-orange/30 bg-safety-orange/10">
@@ -520,7 +520,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                           <p className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground">Access Equipment</p>
                           <div className="flex gap-2">
                             {([["ladder", "Ladder"], ["mewp", "Skylift / MEWP"]] as const).map(([k, l]) => (
-                              <button key={k} onClick={() => setWah((w) => ({ ...w, equipment: w.equipment === k ? "" : k }))} className={`flex-1 rounded-lg px-2 py-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${wah.equipment === k ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>{l}</button>
+                              <button key={k} onClick={() => setWah((w) => ({ ...w, equipment: w.equipment === k ? "" : k }))} className={`flex-1 rounded-lg px-2 py-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${wah.equipment === k ? "bg-secondary/20 border-secondary/40 text-secondary" : "glass border-border/30 text-muted-foreground hover:border-secondary/20"}`}>{l}</button>
                             ))}
                           </div>
 
@@ -555,13 +555,13 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                         <div className="glass rounded-xl p-4 border border-border/20 space-y-3">
                           <p className="font-display clamp-body font-semibold uppercase tracking-wider text-muted-foreground">Manhole Type</p>
                           <div className="flex flex-col gap-2">
-                            <button onClick={() => setManholeType("shallow")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${manholeType === "shallow" ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>Non-Entry / Shallow Manhole (&lt; 1.2m / Joint Box)</button>
-                            <button onClick={() => setManholeType("entry")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${manholeType === "entry" ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>Entry-Required Standard Manhole (≥ 1.2m – 3.0m)</button>
+                            <button onClick={() => setManholeType("shallow")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${manholeType === "shallow" ? "bg-secondary/20 border-secondary/40 text-secondary" : "glass border-border/30 text-muted-foreground hover:border-secondary/20"}`}>Non-Entry / Shallow Manhole (&lt; 1.2m / Joint Box)</button>
+                            <button onClick={() => setManholeType("entry")} className={`flex-1 rounded-lg px-2 py-3 clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${manholeType === "entry" ? "bg-secondary/20 border-secondary/40 text-secondary" : "glass border-border/30 text-muted-foreground hover:border-secondary/20"}`}>Entry-Required Standard Manhole (≥ 1.2m – 3.0m)</button>
                           </div>
                           {manholeType === "shallow" && (
                             <div className="space-y-3">
-                              <div className="rounded-lg p-3 border border-accent/30 bg-accent/10">
-                                <p className="clamp-body font-semibold text-accent">Low / Moderate Risk</p>
+                              <div className="rounded-lg p-3 border border-secondary/30 bg-secondary/10">
+                                <p className="clamp-body font-semibold text-secondary">Low / Moderate Risk</p>
                                 <p className="clamp-body text-muted-foreground mt-1">No bodily entry permitted. Work conducted from surface rim using extended tools.</p>
                               </div>
                               <ul className="space-y-1.5"><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Rim perimeter guard deployed</li><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Surface gas sniffer check clear</li><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Cover lifter used</li></ul>
@@ -583,7 +583,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                                       <label className="clamp-body text-foreground font-semibold block">{g.label}</label>
                                       <span className="text-[10px] text-muted-foreground">Target: {g.target}</span>
                                       <div className="flex items-center gap-1 mt-1">
-                                        <input type="number" step="0.1" value={v} onChange={(e) => setGas((p) => ({ ...p, [k]: e.target.value }))} placeholder="0" className="w-full rounded-md glass border border-border/40 px-2 py-2 clamp-body text-foreground bg-transparent focus:outline-none focus:ring-1 focus:ring-accent/50" />
+                                        <input type="number" step="0.1" value={v} onChange={(e) => setGas((p) => ({ ...p, [k]: e.target.value }))} placeholder="0" className="w-full rounded-md glass border border-border/40 px-2 py-2 clamp-body text-foreground bg-transparent focus:outline-none focus:ring-1 focus:ring-secondary/50" />
                                         <span className="clamp-body text-muted-foreground">{g.unit}</span>
                                       </div>
                                     </div>
@@ -608,7 +608,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                             <p className="font-display clamp-body font-semibold uppercase tracking-wider text-safety-orange">Hot Work Protocol</p>
                             <div className="flex gap-2">
                               {([["welding", "Welding (Arc / TIG / MIG)"], ["cutting", "Cutting & Grinding (Oxy-fuel / Angle Grinder)"]] as const).map(([k, l]) => (
-                                <button key={k} onClick={() => setHotWork((h) => ({ ...h, type: k }))} className={`flex-1 rounded-lg px-2 py-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${hotWork.type === k ? "bg-accent/20 border-accent/40 text-accent" : "glass border-border/30 text-muted-foreground hover:border-accent/20"}`}>{l}</button>
+                                <button key={k} onClick={() => setHotWork((h) => ({ ...h, type: k }))} className={`flex-1 rounded-lg px-2 py-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 border ${hotWork.type === k ? "bg-secondary/20 border-secondary/40 text-secondary" : "glass border-border/30 text-muted-foreground hover:border-secondary/20"}`}>{l}</button>
                               ))}
                             </div>
                             {HOT_ITEMS.map((i) => (
@@ -688,13 +688,13 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                               placeholder={tempSyncing ? "Detecting..." : "e.g. 38"}
                               value={ambientTemp}
                               onChange={(e) => { setAmbientTemp(e.target.value); setTempSource("manual"); }}
-                              className="flex-1 min-h-[48px] rounded-lg glass border border-border/40 px-4 py-3 clamp-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/40 bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="flex-1 min-h-[48px] rounded-lg glass border border-border/40 px-4 py-3 clamp-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-secondary/50 focus:border-secondary/40 bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <button
                               onClick={syncAmbientTemp}
                               disabled={tempSyncing}
                               aria-label="Re-sync temperature"
-                              className="flex h-12 w-12 items-center justify-center rounded-lg border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 disabled:opacity-60"
+                              className="flex h-12 w-12 items-center justify-center rounded-lg border border-secondary/40 bg-secondary/10 text-secondary hover:bg-secondary/20 disabled:opacity-60"
                             >
                               <RefreshCw className={`h-5 w-5 ${tempSyncing ? "animate-spin" : ""}`} />
                             </button>
@@ -819,7 +819,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
               URL.revokeObjectURL(url);
               toast.success("Report exported successfully.");
             }}
-            className="w-full rounded-xl py-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider text-foreground bg-accent hover:bg-accent/90 transition-all duration-300 shadow-lg shadow-accent/20"
+            className="w-full rounded-xl py-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider text-foreground bg-secondary hover:bg-secondary/90 transition-all duration-300 shadow-lg shadow-accent/20"
           >
             <FileDown className="h-5 w-5" />
             Export Report
@@ -830,7 +830,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
             <button
               onClick={handleSaveDraft}
               disabled={syncing}
-              className="w-full glass rounded-xl py-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider text-accent border border-accent/20 hover:border-accent/40 transition-all duration-300 disabled:opacity-70"
+              className="w-full glass rounded-xl py-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider text-secondary border border-secondary/20 hover:border-secondary/40 transition-all duration-300 disabled:opacity-70"
             >
               {syncing ? (
                 <><CloudUpload className="h-5 w-5 animate-pulse" />Syncing to Cloud...</>
@@ -856,10 +856,10 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
         {/* Research Methodology FAB */}
         <button
           onClick={() => setShowMethodology(true)}
-          className="fixed bottom-20 right-4 z-50 w-10 h-10 rounded-full glass-strong border border-accent/30 flex items-center justify-center hover:border-accent/60 transition-all duration-300 shadow-lg group"
+          className="fixed bottom-20 right-4 z-50 w-10 h-10 rounded-full glass-strong border border-secondary/30 flex items-center justify-center hover:border-secondary/60 transition-all duration-300 shadow-lg group"
           title="Research Methodology"
         >
-          <Info className="h-4 w-4 text-accent group-hover:scale-110 transition-transform" />
+          <Info className="h-4 w-4 text-secondary group-hover:scale-110 transition-transform" />
         </button>
 
         {/* Methodology Overlay */}
@@ -867,25 +867,25 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center px-6" onClick={() => setShowMethodology(false)}>
             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
             <div
-              className="relative glass-strong rounded-2xl border border-accent/20 p-6 max-w-sm w-full animate-in zoom-in-95 fade-in duration-200 shadow-2xl"
+              className="relative glass-strong rounded-2xl border border-secondary/20 p-6 max-w-sm w-full animate-in zoom-in-95 fade-in duration-200 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={() => setShowMethodology(false)}
-                className="absolute top-3 right-3 w-8 h-8 rounded-full glass flex items-center justify-center hover:border-accent/40 border border-border/20 transition-colors"
+                className="absolute top-3 right-3 w-8 h-8 rounded-full glass flex items-center justify-center hover:border-secondary/40 border border-border/20 transition-colors"
               >
                 <X className="h-4 w-4 text-muted-foreground" />
               </button>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl glass flex items-center justify-center border border-accent/20">
-                  <Info className="h-5 w-5 text-accent" />
+                <div className="w-10 h-10 rounded-xl glass flex items-center justify-center border border-secondary/20">
+                  <Info className="h-5 w-5 text-secondary" />
                 </div>
                 <h3 className="font-display text-lg font-bold text-foreground tracking-wide">Research Methodology</h3>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Aligned with <span className="text-accent font-semibold">TIME OSH Management System</span>,{" "}
-                <span className="text-accent font-semibold">Cooper's Reciprocal Safety Culture Model</span>, and{" "}
-                <span className="text-accent font-semibold">Department of Occupational Safety &amp; Health (DOSH) Regulatory Codes</span>.
+                Aligned with <span className="text-secondary font-semibold">TIME OSH Management System</span>,{" "}
+                <span className="text-secondary font-semibold">Cooper's Reciprocal Safety Culture Model</span>, and{" "}
+                <span className="text-secondary font-semibold">Department of Occupational Safety &amp; Health (DOSH) Regulatory Codes</span>.
               </p>
               <div className="mt-4 pt-4 border-t border-border/20">
                 <p className="text-xs text-muted-foreground/70 leading-relaxed">

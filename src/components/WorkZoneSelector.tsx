@@ -118,7 +118,7 @@ const workZones = Object.keys(zoneInfo) as Exclude<WorkZone, "">[];
 const tierStyle: Record<Tier, string> = {
   Critical: "bg-destructive/15 border-destructive/40 text-destructive",
   High: "bg-safety-orange/15 border-safety-orange/40 text-safety-orange",
-  Moderate: "bg-accent/15 border-accent/40 text-accent",
+  Moderate: "bg-secondary/15 border-secondary/40 text-secondary",
 };
 
 interface WorkZoneSelectorProps {
@@ -139,8 +139,8 @@ const WorkZoneSelector = ({ value, onChange }: WorkZoneSelectorProps) => {
 
       <div className="glass rounded-xl p-4 space-y-4">
         <div className="flex items-center gap-3">
-          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isHighRisk ? "bg-safety-orange/20 glow-orange" : "bg-accent/10"}`}>
-            <MapPin className={`h-5 w-5 ${isHighRisk ? "text-safety-orange" : "text-accent"}`} />
+          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isHighRisk ? "bg-safety-orange/20 glow-orange" : "bg-secondary/10"}`}>
+            <MapPin className={`h-5 w-5 ${isHighRisk ? "text-safety-orange" : "text-secondary"}`} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="clamp-body text-muted-foreground uppercase tracking-wider font-medium">Select Asset Work Zone</p>
@@ -162,10 +162,10 @@ const WorkZoneSelector = ({ value, onChange }: WorkZoneSelectorProps) => {
         {info && (
           <div className="space-y-3 animate-in slide-in-from-top-2 fade-in duration-300">
             {/* Operational Risk Tier */}
-            <div className="glass-strong rounded-xl p-3 border border-accent/10 space-y-2">
+            <div className="glass-strong rounded-xl p-3 border border-secondary/10 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Gauge className="h-4 w-4 text-accent" />
+                  <Gauge className="h-4 w-4 text-secondary" />
                   <span className="clamp-body text-muted-foreground uppercase tracking-wider font-semibold">Operational Risk Tier</span>
                 </div>
                 <span className={`clamp-body font-display font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${tierStyle[info.tier]}`}>
@@ -176,7 +176,7 @@ const WorkZoneSelector = ({ value, onChange }: WorkZoneSelectorProps) => {
               <div className="flex flex-wrap gap-1.5">
                 {info.tags.map((t) => (
                   <span key={t} className="inline-flex items-center gap-1 clamp-body rounded-full border border-border/40 bg-muted/40 px-2 py-0.5 text-foreground/80">
-                    <Tag className="h-3 w-3 text-accent" />
+                    <Tag className="h-3 w-3 text-secondary" />
                     {t}
                   </span>
                 ))}
@@ -199,7 +199,7 @@ const WorkZoneSelector = ({ value, onChange }: WorkZoneSelectorProps) => {
                 const Icon = CustomIcon ?? (isHigh ? ShieldAlert : CheckCircle2);
                 return (
                   <div key={i} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 ${isHigh ? "glass border-safety-orange/30 glow-orange" : "glass"}`}>
-                    <Icon className={`h-4 w-4 shrink-0 ${isHigh ? "text-safety-orange" : "text-accent"}`} />
+                    <Icon className={`h-4 w-4 shrink-0 ${isHigh ? "text-safety-orange" : "text-secondary"}`} />
                     <span className="clamp-body font-medium flex-1 text-foreground">{item.label}</span>
                     {isHigh && (
                       <span className="clamp-body bg-safety-orange/20 text-safety-orange px-2 py-0.5 rounded-full font-display uppercase tracking-wider">

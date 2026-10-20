@@ -109,10 +109,10 @@ const QuickCapture = () => {
         disabled={phase !== "idle" && phase !== "complete"}
         className={`w-full h-auto min-h-14 whitespace-normal rounded-xl p-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider transition-all duration-500 ${
           phase === "idle"
-            ? "glass border border-accent/30 text-accent hover:border-accent/50 hover:shadow-[0_0_30px_hsla(var(--glow-blue)/0.2)]"
+            ? "glass border border-secondary/30 text-secondary hover:border-secondary/50 hover:shadow-[0_0_30px_hsla(var(--glow-brand)/0.2)]"
             : phase === "complete"
             ? "glass border border-secondary/30 text-secondary glow-green"
-            : "glass border border-accent/20 text-accent/60"
+            : "glass border border-secondary/20 text-secondary/60"
         }`}
       >
         {phase === "idle" && (
@@ -138,11 +138,11 @@ const QuickCapture = () => {
       <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={onPhoto} />
 
       {photo && (
-        <div className="relative overflow-hidden rounded-xl border border-accent/20">
+        <div className="relative overflow-hidden rounded-xl border border-secondary/20">
           <img src={photo} alt="Captured site photo" className="w-full max-h-64 object-cover" />
           {phase !== "complete" && (
             <div className="absolute inset-0 bg-background/40 flex items-center justify-center">
-              <ScanLine className="h-12 w-12 text-accent animate-pulse" />
+              <ScanLine className="h-12 w-12 text-secondary animate-pulse" />
             </div>
           )}
           <div className="absolute top-2 right-2 rounded-full glass-strong px-2 py-1">
@@ -153,11 +153,11 @@ const QuickCapture = () => {
 
       {/* Analysis Animation */}
       {(phase === "scanning" || phase === "detecting") && (
-        <div className="glass rounded-xl p-6 border border-accent/20 animate-in fade-in duration-300">
+        <div className="glass rounded-xl p-6 border border-secondary/20 animate-in fade-in duration-300">
           <div className="flex flex-col items-center gap-4">
-            <div className="relative w-20 h-20 rounded-2xl glass-strong flex items-center justify-center border border-accent/30">
-              <ScanLine className="h-10 w-10 text-accent animate-pulse" />
-              <div className="absolute inset-0 rounded-2xl border-2 border-accent/40 animate-ping" />
+            <div className="relative w-20 h-20 rounded-2xl glass-strong flex items-center justify-center border border-secondary/30">
+              <ScanLine className="h-10 w-10 text-secondary animate-pulse" />
+              <div className="absolute inset-0 rounded-2xl border-2 border-secondary/40 animate-ping" />
             </div>
             <div className="text-center">
               <p className="font-display clamp-heading font-semibold text-foreground uppercase tracking-wider">
@@ -181,7 +181,7 @@ const QuickCapture = () => {
 
       {/* Results */}
       {phase === "complete" && analysis && (
-        <div role="status" className={`rounded-lg border p-3 clamp-body ${analysis.source === "simulated" ? "border-safety-orange/40 text-safety-orange bg-safety-orange/10" : "border-accent/30 text-accent bg-accent/5"}`}>
+        <div role="status" className={`rounded-lg border p-3 clamp-body ${analysis.source === "simulated" ? "border-safety-orange/40 text-safety-orange bg-safety-orange/10" : "border-secondary/30 text-secondary bg-secondary/5"}`}>
           <p className="font-semibold">{analysis.source === "simulated" ? "SIMULATED — NOT PHOTO FINDINGS" : "LIVE GOOGLE GEMINI FINDINGS"}</p>
           <p className="mt-1">{analysis.message}</p>
           {analysis.source === "gemini" && results.length === 0 && <p>No visible hazards identified; this is not site safety clearance.</p>}
@@ -209,7 +209,7 @@ const QuickCapture = () => {
                 {/* Detection Header — clickable to trend page */}
                 <Button variant="ghost"
                   onClick={() => navigate(`/predictive?metric=${item.metricKey}`)}
-                  className="w-full h-auto whitespace-normal p-3.5 flex items-center gap-3 hover:bg-accent/5 transition-all duration-300 text-left group"
+                  className="w-full h-auto whitespace-normal p-3.5 flex items-center gap-3 hover:bg-secondary/5 transition-all duration-300 text-left group"
                 >
                   <div className="w-9 h-9 rounded-lg glass-strong flex items-center justify-center border border-border/30 shrink-0">
                     <Icon className={`h-4 w-4 ${statusColor}`} />
@@ -222,7 +222,7 @@ const QuickCapture = () => {
                     <span className={`font-display text-sm font-bold ${statusColor}`}>
                       {item.confidence}%
                     </span>
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-accent transition-colors" />
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-secondary transition-colors" />
                   </div>
                 </Button>
 
@@ -243,10 +243,10 @@ const QuickCapture = () => {
 
                 {/* Pre-emptive Safety Directive */}
                 <div className="px-3.5 pb-3">
-                  <div className="rounded-lg bg-accent/5 border border-accent/15 p-2.5 flex items-start gap-2.5">
-                    <ClipboardCheck className="h-3.5 w-3.5 mt-0.5 shrink-0 text-accent" />
+                  <div className="rounded-lg bg-secondary/5 border border-secondary/15 p-2.5 flex items-start gap-2.5">
+                    <ClipboardCheck className="h-3.5 w-3.5 mt-0.5 shrink-0 text-secondary" />
                     <div className="flex-1 min-w-0">
-                      <p className="clamp-body text-accent/60 uppercase tracking-wider font-medium mb-0.5 text-[9px]">Pre-emptive Safety Directive</p>
+                      <p className="clamp-body text-secondary/60 uppercase tracking-wider font-medium mb-0.5 text-[9px]">Pre-emptive Safety Directive</p>
                       <p className="clamp-body text-foreground/80 leading-snug">{item.recommendation}</p>
                     </div>
                   </div>

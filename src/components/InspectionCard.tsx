@@ -96,8 +96,8 @@ const InspectionCard = ({
         style={{ animationDelay: `${index * 50}ms` }}
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-lg bg-accent/15">
-            <Icon className="h-5 w-5 text-accent" />
+          <div className="flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-lg bg-secondary/15">
+            <Icon className="h-5 w-5 text-secondary" />
           </div>
           <h3 className="font-display clamp-heading font-semibold uppercase tracking-wide text-foreground leading-tight">
             {title}

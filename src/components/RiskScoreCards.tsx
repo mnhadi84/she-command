@@ -60,8 +60,8 @@ const RiskScoreCards = ({ safetyScore, esgScore, operationalScore }: RiskScoreCa
           Safety
         </p>
       </div>
-      <div className="glass rounded-xl p-3 flex flex-col items-center gap-2 border border-accent/15 hover:border-accent/30 transition-all duration-300">
-        <Leaf className="h-4 w-4 text-accent" />
+      <div className="glass rounded-xl p-3 flex flex-col items-center gap-2 border border-secondary/15 hover:border-secondary/30 transition-all duration-300">
+        <Leaf className="h-4 w-4 text-secondary" />
         <ScoreRing value={esgScore} color="accent" glowClass="" />
         <p className="clamp-body text-muted-foreground uppercase tracking-wider font-semibold text-center">
           ESG

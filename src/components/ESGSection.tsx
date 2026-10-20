@@ -221,14 +221,14 @@ const CO2Summary = ({ co2: co2Val, zone }: { co2: string; zone: string }) => {
     <div className="glass rounded-xl p-4 border border-secondary/20 hover:border-secondary/30 transition-all duration-300">
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-lg glass-strong flex items-center justify-center border border-secondary/20">
-          <Factory className="h-5 w-5 text-accent" />
+          <Factory className="h-5 w-5 text-secondary" />
         </div>
         <div>
           <p className="font-display clamp-heading font-semibold text-foreground uppercase tracking-wider">
             Carbon Footprint
           </p>
           <p className="clamp-body text-muted-foreground">
-            CO₂ impact per zone: <span className="text-accent">{zone || "No zone"}</span>
+            CO₂ impact per zone: <span className="text-secondary">{zone || "No zone"}</span>
           </p>
         </div>
       </div>
@@ -353,7 +353,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           value={values.energySaver}
           onChange={(v) => onChange("energySaver", v)}
           options={energySaverOptions}
-          accentClass="text-accent"
+          accentClass="text-secondary"
         />
         <MetricCard
           icon={Factory}
@@ -363,7 +363,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           onChange={(v) => onChange("machineryHours", v)}
           unit="hrs"
           placeholder="0"
-          accentClass="text-accent"
+          accentClass="text-secondary"
         />
       </SubSection>
 
@@ -386,7 +386,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           onChange={(v) => onChange("municipalWater", v)}
           unit="m³"
           placeholder="0"
-          accentClass="text-accent"
+          accentClass="text-secondary"
         />
         {totalWater > 0 && (
           <div className="glass rounded-xl p-4 border border-secondary/20">
@@ -416,7 +416,7 @@ const ESGSection = ({ values, onChange, workZone }: ESGSectionProps) => {
           onChange={(v) => onChange("co2Impact", v)}
           unit="kg"
           placeholder="0"
-          accentClass="text-accent"
+          accentClass="text-secondary"
         />
         <CO2Summary co2={values.co2Impact} zone={workZone} />
       </SubSection>

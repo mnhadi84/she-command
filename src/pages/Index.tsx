@@ -560,8 +560,8 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                           </div>
                           {manholeType === "shallow" && (
                             <div className="space-y-3">
-                              <div className="rounded-lg p-3 border border-secondary/30 bg-secondary/10">
-                                <p className="clamp-body font-semibold text-secondary">Low / Moderate Risk</p>
+                              <div className="rounded-lg p-3 border border-accent/30 bg-accent/10">
+                                <p className="clamp-body font-semibold text-accent">Low / Moderate Risk</p>
                                 <p className="clamp-body text-muted-foreground mt-1">No bodily entry permitted. Work conducted from surface rim using extended tools.</p>
                               </div>
                               <ul className="space-y-1.5"><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Rim perimeter guard deployed</li><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Surface gas sniffer check clear</li><li className="flex items-center gap-2 clamp-body text-foreground"><ShieldCheck className="h-4 w-4 text-secondary shrink-0" />Cover lifter used</li></ul>

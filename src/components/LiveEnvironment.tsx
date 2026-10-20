@@ -39,7 +39,7 @@ const hazeStyle = (api: number) =>
   api <= 50
     ? "text-secondary border-secondary/40"
     : api <= 100
-    ? "text-secondary border-secondary/40"
+    ? "text-accent border-accent/40"
     : api <= 200
     ? "text-safety-orange border-safety-orange/50"
     : "text-destructive border-destructive/50";

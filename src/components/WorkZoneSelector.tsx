@@ -118,7 +118,7 @@ const workZones = Object.keys(zoneInfo) as Exclude<WorkZone, "">[];
 const tierStyle: Record<Tier, string> = {
   Critical: "bg-destructive/15 border-destructive/40 text-destructive",
   High: "bg-safety-orange/15 border-safety-orange/40 text-safety-orange",
-  Moderate: "bg-secondary/15 border-secondary/40 text-secondary",
+  Moderate: "bg-accent/15 border-accent/40 text-accent",
 };
 
 interface WorkZoneSelectorProps {

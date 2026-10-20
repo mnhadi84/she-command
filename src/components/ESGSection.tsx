@@ -122,7 +122,7 @@ const StatusCard = ({
   options,
   accentClass = "text-accent",
 }: StatusCardProps) => (
-  <div className="glass rounded-xl p-4 flex items-center gap-4 border border-border/30 hover:border-accent/20 transition-all duration-300 group">
+  <div className="glass rounded-xl p-4 flex flex-wrap items-center gap-4 border border-border/30 hover:border-accent/20 transition-all duration-300 group">
     <div className="flex-shrink-0 w-10 h-10 rounded-lg glass-strong flex items-center justify-center border border-accent/20 group-hover:border-accent/40 transition-colors">
       <Icon className={`h-5 w-5 ${accentClass}`} />
     </div>
@@ -135,7 +135,7 @@ const StatusCard = ({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-lg glass border border-border/40 px-2.5 py-2 clamp-body text-foreground bg-transparent focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/40 appearance-none cursor-pointer"
+      className="w-full min-w-0 rounded-lg glass border border-accent/20 px-2.5 py-2 clamp-body text-foreground bg-transparent focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/40 appearance-none cursor-pointer"
     >
       <option value="" className="bg-card text-foreground">Select</option>
       {options.map((o) => (

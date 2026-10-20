@@ -192,20 +192,22 @@ const InsightsSection = ({
   title,
   children,
   defaultOpen = false,
+  calm = false,
 }: {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  calm?: boolean;
 }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="space-y-3">
-      <button
+    <div className={calm ? "esg-section space-y-3" : "space-y-3"}>
+      <Button variant="ghost"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between glass rounded-xl px-4 py-3 border border-border/20 hover:border-secondary/20 transition-all duration-300 group"
+        className={`h-auto w-full flex items-center justify-between glass rounded-xl px-4 py-3 border transition-all duration-300 group ${calm ? "border-accent/20 hover:border-accent/30 hover:bg-accent/5" : "border-border/20 hover:border-secondary/20 hover:bg-secondary/5"}`}
       >
         <div className="flex items-center gap-2">
-          <Eye className="h-4 w-4 text-secondary" />
+          <Eye className={calm ? "h-4 w-4 text-accent" : "h-4 w-4 text-secondary"} />
           <span className="font-display clamp-heading font-semibold uppercase tracking-[0.12em] text-foreground">
             {title}
           </span>
@@ -215,7 +217,7 @@ const InsightsSection = ({
         ) : (
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
         )}
-      </button>
+      </Button>
       {open && (
         <div className="animate-in slide-in-from-top-2 fade-in duration-300">
           {children}
@@ -726,8 +728,8 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
 
           {/* 7. ESG — visible but subtle, auto-open */}
           {show("esg") && (
-          <InsightsSection key={`esg-${section}`} title="Sustainability & ESG" defaultOpen={true}>
-            <div className="opacity-90">
+          <InsightsSection key={`esg-${section}`} title="Sustainability & ESG" defaultOpen={true} calm>
+            <div>
               <ESGSection values={esgValues} onChange={handleESGChange} workZone={workZone} />
             </div>
           </InsightsSection>

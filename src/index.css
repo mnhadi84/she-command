@@ -99,6 +99,7 @@
   }
 
   .glow-green {
+    border-color: hsl(var(--status-safe) / 0.35);
     box-shadow: 0 0 20px hsla(var(--glow-green) / 0.3), 0 0 60px hsla(var(--glow-green) / 0.1);
   }
 

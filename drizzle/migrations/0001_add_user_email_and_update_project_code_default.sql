@@ -1,0 +1,2 @@
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.users ALTER COLUMN project_code SET DEFAULT 'TTXXXX'::text;

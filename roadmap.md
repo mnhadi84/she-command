@@ -1,5 +1,5 @@
 # Current inspection workflow updates
-- [ ] Add timestamped local drafts with all inspection fields and evidence, resume/delete dialog, and green save confirmation; test persistence and restoration.
+- [x] Add timestamped local drafts with all inspection fields and evidence, resume/delete dialog, and green save confirmation; 19 tests passed and browser verified cross-refresh photo/text restoration plus deletion cancel/confirm.
 - [x] Persist editable Active Project and Assessor; include names in reports.
 - [x] Add confirmed logout that clears session state; cancel and confirm verified in the app.
 - [x] Add matching registration password fields with eye toggles; validation verified, existing mock sign-in unchanged, no password storage.

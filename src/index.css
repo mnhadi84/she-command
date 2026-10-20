@@ -59,7 +59,8 @@
     --safety-orange-foreground: 0 0% 100%;
     --brand-magenta: 324 100% 46%;
     --brand-cyan: 196 100% 44%;
-    --electric-blue: 202 100% 44%;
+    --electric-blue: 196.3 100% 43.9%; /* #00A3E0 */
+    --esg-emerald: 160.1 84.1% 39.4%; /* #10B981 */
   }
 }
 

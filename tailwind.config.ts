@@ -69,6 +69,7 @@ export default {
           foreground: "hsl(var(--safety-orange-foreground))",
         },
         "electric-blue": "hsl(var(--electric-blue))",
+        "esg-emerald": "hsl(var(--esg-emerald))",
       },
       borderRadius: {
         lg: "var(--radius)",

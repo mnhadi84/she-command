@@ -7,4 +7,4 @@
 - [x] Restore cyan dashboard helmet; preserve login Wi-Fi.
 - [x] Restore emerald verified checklist and pass states.
 - [x] Restore calm cyan/emerald ESG palette.
-- [ ] Check updated checklist and ESG screens in the preview.
+- [x] Check updated checklist and ESG screens in the preview; green verified states, cyan helmet, unchanged login Wi-Fi, no ESG overflow or runtime errors; 11 camera tests passed.

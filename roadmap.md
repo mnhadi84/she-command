@@ -1,4 +1,11 @@
 # Camera analysis
+ # Current inspection workflow updates
+- [ ] Persist editable Active Project and Assessor; include names in reports.
+- [ ] Add confirmed logout that clears session state.
+- [ ] Add matching registration password fields with eye toggles.
+- [ ] Enable unsafe camera/gallery attachments with preview and remove/replace.
+- [ ] Clean methodology wording and verify requested flows.
+
 - [x] Add protected direct-Google photo analysis and structured results.
 - [x] Connect camera with labeled simulated fallback; six tests and signed-out upload/reset passed.
 - [x] Deploy function and verify unauthenticated requests return 401; Google key saved securely.

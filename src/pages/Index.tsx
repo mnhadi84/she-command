@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
   ArrowUpFromLine,
   Flame,
@@ -6,7 +6,7 @@ import {
   FlaskConical,
   Sparkles,
   Save,
-  CloudUpload,
+  FolderOpen,
   Check,
   ChevronDown,
   ChevronUp,
@@ -40,6 +40,9 @@ import { emptyESG } from "@/components/ESGSection";
 import BottomNav from "@/components/BottomNav";
 import WorkZoneSelector from "@/components/WorkZoneSelector";
 import type { WorkZone } from "@/components/WorkZoneSelector";
+import SavedInspectionDrafts from "@/components/SavedInspectionDrafts";
+import { readDrafts, saveDraft, deleteDraft } from "@/lib/inspection-drafts";
+import type { InspectionDraft } from "@/lib/inspection-drafts";
 
 type Status = "safe" | "unsafe" | "na" | null;
 
@@ -289,8 +292,9 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   const [evidencePhotos, setEvidencePhotos] = useState<Record<string, string | undefined>>({});
   const [eiaValues, setEIAValues] = useState<Record<string, string>>(loadEIA);
   const [esgValues, setESGValues] = useState<ESGValues>(loadESG);
-  const [syncing, setSyncing] = useState(false);
-  const [synced, setSynced] = useState(false);
+  const [savedDrafts, setSavedDrafts] = useState<InspectionDraft[]>([]);
+  const [showDrafts, setShowDrafts] = useState(false);
+  const weatherGeneration = useRef(0);
   const [showValidation, setShowValidation] = useState(false);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [workZone, setWorkZone] = useState<WorkZone>(() => {
@@ -361,10 +365,11 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   const [tempSyncing, setTempSyncing] = useState(false);
   const [humidity, setHumidity] = useState<number | null>(null);
   useEffect(() => { localStorage.setItem(AMBIENT_TEMP_KEY + "-src", tempSource); }, [tempSource]);
-  const fetchWeather = async (lat: number, lon: number, src: "gps" | "default") => {
+  const fetchWeather = async (lat: number, lon: number, src: "gps" | "default", generation: number) => {
     try {
       const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m`);
       const j = await r.json();
+      if (generation !== weatherGeneration.current) return;
       const t = j?.current?.temperature_2m;
       if (typeof t === "number") {
         setAmbientTemp((Math.round(t * 10) / 10).toFixed(1));
@@ -375,11 +380,12 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
     setTempSyncing(false);
   };
   const syncAmbientTemp = () => {
+    const generation = ++weatherGeneration.current;
     setTempSyncing(true);
-    const fallback = () => fetchWeather(3.139, 101.6869, "default");
+    const fallback = () => fetchWeather(3.139, 101.6869, "default", generation);
     if (!navigator.geolocation) return fallback();
     navigator.geolocation.getCurrentPosition(
-      (p) => fetchWeather(p.coords.latitude, p.coords.longitude, "gps"),
+      (p) => fetchWeather(p.coords.latitude, p.coords.longitude, "gps", generation),
       fallback,
       { timeout: 8000, maximumAge: 300000 }
     );
@@ -414,19 +420,35 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
   };
 
   const handleSaveDraft = () => {
-    if (!validateUnsafeFields()) {
-      setShowValidation(true);
-      toast.error("Please fill in all required fields for unsafe categories.");
-      return;
+    try {
+      const photos = Object.fromEntries(Object.entries(evidencePhotos).filter((entry): entry is [string, string] => typeof entry[1] === "string"));
+      setSavedDrafts(saveDraft({ projectName, assessorName, statuses, details, evidencePhotos: photos, eiaValues, esgValues, workZone, noiseSiteType, manholeType, gas, heightAsset, ambientTemp, tempSource, humidity, plantChecks, wah, hotWork }, contextCategories.map((cat) => cat.title)));
+      toast.success("Draft successfully saved locally with timestamp.", { className: "!bg-safe !text-primary-foreground !border-safe" });
+    } catch {
+      toast.error("Draft could not be saved. Device storage may be full or unavailable; existing drafts have not been changed.");
     }
-    setShowValidation(false);
-    setSyncing(true);
-    setSynced(false);
-    setTimeout(() => {
-      setSyncing(false);
-      setSynced(true);
-      setTimeout(() => setSynced(false), 2000);
-    }, 1800);
+  };
+  const openDrafts = () => {
+    try { setSavedDrafts(readDrafts()); setShowDrafts(true); }
+    catch { toast.error("Saved drafts could not be read. Existing drafts have not been changed."); }
+  };
+  const loadDraft = (draft: InspectionDraft) => {
+    const s = draft.snapshot;
+    ++weatherGeneration.current;
+    setTempSyncing(false);
+    setProjectName(s.projectName); setAssessorName(s.assessorName);
+    setStatuses(s.statuses); setDetails(s.details); setEvidencePhotos(s.evidencePhotos);
+    setEIAValues(s.eiaValues); setESGValues(s.esgValues); setWorkZone(s.workZone);
+    setNoiseSiteType(s.noiseSiteType); setManholeType(s.manholeType); setGas(s.gas);
+    setHeightAsset(s.heightAsset); setAmbientTemp(s.ambientTemp); setTempSource(s.tempSource); setHumidity(s.humidity);
+    setPlantChecks(s.plantChecks); setWah(s.wah); setHotWork(s.hotWork);
+    setShowValidation(false); setExpandedCard(null); setShowDrafts(false);
+    toast.success("Saved inspection draft loaded.");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const removeDraft = (id: string) => {
+    try { setSavedDrafts(deleteDraft(id)); toast.success("Draft deleted."); }
+    catch { toast.error("Draft could not be deleted. Please try again."); }
   };
 
   const toggleExpanded = (title: string) => {
@@ -841,25 +863,14 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
 
           {/* Save Draft + Security Badge */}
           <div className="space-y-2">
-            <button
+            <Button variant="outline"
               onClick={handleSaveDraft}
-              disabled={syncing}
-              className="w-full glass rounded-xl py-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider text-secondary border border-secondary/20 hover:border-secondary/40 transition-all duration-300 disabled:opacity-70"
+              className="h-auto w-full glass rounded-lg py-4 font-display clamp-heading font-semibold uppercase tracking-wider text-secondary border-secondary/20 hover:border-secondary/40"
             >
-              {syncing ? (
-                <><CloudUpload className="h-5 w-5 animate-pulse" />Syncing to Cloud...</>
-              ) : synced ? (
-                <><Check className="h-5 w-5 text-secondary" /><span className="text-secondary">Draft Saved!</span></>
-              ) : (
-                <><Save className="h-5 w-5" />Save Draft</>
-              )}
-            </button>
-            <div className="flex items-center justify-end gap-1.5 pr-1">
-              <ShieldCheck className="h-3.5 w-3.5 text-secondary/70" />
-              <span className="text-[10px] font-medium uppercase tracking-wider text-secondary/70">
-                Secure Edge Processing — Data de-identified before sync
-              </span>
-            </div>
+              <Save className="h-5 w-5" />Save Draft
+            </Button>
+            <Button variant="outline" onClick={openDrafts} className="w-full min-h-12 uppercase font-display"><FolderOpen />View Drafts</Button>
+            <SavedInspectionDrafts open={showDrafts} onOpenChange={setShowDrafts} drafts={savedDrafts} onLoad={loadDraft} onDelete={removeDraft} />
           </div>
 
           <p className="text-center clamp-body text-muted-foreground/60 tracking-wide pt-2">

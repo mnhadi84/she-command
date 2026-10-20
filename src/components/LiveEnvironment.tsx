@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { CloudRain, Thermometer, Droplets, Factory, RefreshCw, Wifi, CloudFog, AlertTriangle } from "lucide-react";
+import { Thermometer, Droplets, Factory, RefreshCw, Wifi, CloudFog, AlertTriangle } from "lucide-react";
 
 interface WeatherData {
   temperature: number;
@@ -75,6 +75,24 @@ const getPosition = (): Promise<{ lat: number; lon: number; source: "gps" | "def
       { timeout: 8000, maximumAge: 300000 }
     );
   });
+
+/** Cloud body rendered white, rain streaks in electric water blue */
+const RainCloud = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" className="stroke-foreground" />
+    <path d="M16 14v6" className="stroke-electric-blue" />
+    <path d="M8 14v6" className="stroke-electric-blue" />
+    <path d="M12 16v6" className="stroke-electric-blue" />
+  </svg>
+);
 
 const LiveEnvironment = () => {
   const [weather, setWeather] = useState<WeatherData>({ temperature: 0, rainfall: 0, humidity: 0 });
@@ -164,12 +182,12 @@ const LiveEnvironment = () => {
             <p className="clamp-body text-muted-foreground">Temp</p>
           </div>
           <div className="rounded-lg glass-strong p-2 text-center border border-border/20">
-            <CloudRain className="h-4 w-4 text-secondary mx-auto mb-1" />
+            <RainCloud className="h-4 w-4 mx-auto mb-1" />
             <p className="font-display text-lg font-bold text-foreground tabular-nums">{animRain.toFixed(1)}</p>
             <p className="clamp-body text-muted-foreground">Rain mm</p>
           </div>
           <div className="rounded-lg glass-strong p-2 text-center border border-border/20">
-            <Droplets className="h-4 w-4 text-secondary mx-auto mb-1" />
+            <Droplets className="h-4 w-4 text-electric-blue mx-auto mb-1" />
             <p className="font-display text-lg font-bold text-foreground tabular-nums">{Math.round(animHumid)}%</p>
             <p className="clamp-body text-muted-foreground">Humidity</p>
           </div>
@@ -183,7 +201,7 @@ const LiveEnvironment = () => {
         <div className="grid grid-cols-2 gap-2">
           <div className="rounded-xl glass-strong p-3 border border-secondary/15">
             <div className="flex items-center gap-2 mb-2">
-              <CloudRain className="h-3.5 w-3.5 text-secondary" />
+              <RainCloud className="h-3.5 w-3.5" />
               <span className="clamp-body text-muted-foreground uppercase tracking-wider font-medium">Water Potential</span>
             </div>
             <p className="font-display text-2xl font-bold text-secondary tabular-nums">{waterPotential}%</p>

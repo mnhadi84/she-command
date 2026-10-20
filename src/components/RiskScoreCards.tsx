@@ -54,23 +54,23 @@ const RiskScoreCards = ({ safetyScore, esgScore, operationalScore }: RiskScoreCa
   return (
     <div className="grid grid-cols-3 gap-2">
       <div className="glass rounded-xl p-3 flex flex-col items-center gap-2 border border-secondary/15 hover:border-secondary/30 transition-all duration-300">
-        <ShieldCheck className="h-4 w-4 text-secondary" />
+        <ShieldCheck className="h-4 w-4 text-electric-blue" />
         <ScoreRing value={safetyScore} color="secondary" glowClass="" />
-        <p className="clamp-body text-muted-foreground uppercase tracking-wider font-semibold text-center">
+        <p className="clamp-body text-electric-blue uppercase tracking-wider font-semibold text-center">
           Safety
         </p>
       </div>
       <div className="glass rounded-xl p-3 flex flex-col items-center gap-2 border border-secondary/15 hover:border-secondary/30 transition-all duration-300">
-        <Leaf className="h-4 w-4 text-secondary" />
+        <Leaf className="h-4 w-4 text-esg-emerald" />
         <ScoreRing value={esgScore} color="accent" glowClass="" />
-        <p className="clamp-body text-muted-foreground uppercase tracking-wider font-semibold text-center">
+        <p className="clamp-body text-electric-blue uppercase tracking-wider font-semibold text-center">
           ESG
         </p>
       </div>
       <div className="glass rounded-xl p-3 flex flex-col items-center gap-2 border border-primary/15 hover:border-primary/30 transition-all duration-300">
         <Activity className="h-4 w-4 text-primary" />
         <ScoreRing value={operationalScore} color="primary" glowClass="" />
-        <p className="clamp-body text-muted-foreground uppercase tracking-wider font-semibold text-center">
+        <p className="clamp-body text-electric-blue uppercase tracking-wider font-semibold text-center">
           Ops Risk
         </p>
       </div>

@@ -1,5 +1,6 @@
 # Architecture rules
-- Checklist hazard evidence is compressed through the existing photo preparation helper and kept in dashboard memory, not localStorage, to avoid storage quotas and persistent photo exposure on shared devices.
+- Checklist hazard evidence is compressed through the existing photo preparation helper and stays in memory unless explicitly saved in a validated localStorage inspection draft; atomic snapshot writes preserve existing drafts on storage-quota failure.
+- Inspection drafts use a versioned, schema-validated full-state snapshot and restore every inspector-controlled field; cancel stale weather responses on resume so saved readings are not overwritten.
 - Registration password fields validate matching input only; the existing profile-only registration and mock login remain unchanged, and passwords are never stored or sent to the profile table.
 - Camera analysis calls Google directly from a public Cloud edge function (no sign-in, by owner choice); private provider credentials never enter browser code and no Lovable AI Gateway calls are used.
 - Share the camera findings contract and fallback data under the function directory so browser and server validate the same fields without deployment imports outside the functions tree.

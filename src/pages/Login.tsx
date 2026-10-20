@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 const Login = () => {
   const navigate = useNavigate();
   const [staffId, setStaffId] = useState("");
-  const [projectCode, setProjectCode] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [ppeConfirmed, setPpeConfirmed] = useState(false);
@@ -17,7 +16,7 @@ const Login = () => {
   const [showRegister, setShowRegister] = useState(false);
   const [regName, setRegName] = useState("");
   const [regStaffId, setRegStaffId] = useState("");
-  const [regProjectCode, setRegProjectCode] = useState("TTXXXX");
+  const [regEmail, setRegEmail] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -29,8 +28,13 @@ const Login = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!regName.trim() || !regStaffId.trim() || !regProjectCode.trim()) {
+    const email = regEmail.trim();
+    if (!regName.trim() || !regStaffId.trim() || !email) {
       toast({ title: "Missing Fields", description: "Please fill in all registration fields.", variant: "destructive" });
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast({ title: "Invalid Email", description: "Enter a valid email address.", variant: "destructive" });
       return;
     }
     setIsRegistering(true);
@@ -38,7 +42,7 @@ const Login = () => {
       const { error } = await supabase.from("users").insert({
         name: regName.trim(),
         staff_id: regStaffId.trim(),
-        project_code: regProjectCode.trim(),
+        email,
       });
       if (error) {
         if (error.code === "23505") {
@@ -51,7 +55,7 @@ const Login = () => {
         setShowRegister(false);
         setRegName("");
         setRegStaffId("");
-        setRegProjectCode("TTXXXX");
+        setRegEmail("");
       }
     } catch {
       toast({ title: "Error", description: "An unexpected error occurred.", variant: "destructive" });
@@ -98,14 +102,6 @@ const Login = () => {
             value={staffId}
             onChange={(e) => setStaffId(e.target.value)}
             placeholder="Staff ID"
-            className={inputClass}
-          />
-
-          <input
-            type="text"
-            value={projectCode}
-            onChange={(e) => setProjectCode(e.target.value)}
-            placeholder="TTXXXX"
             className={inputClass}
           />
 
@@ -196,14 +192,14 @@ const Login = () => {
                 type="text"
                 value={regStaffId}
                 onChange={(e) => setRegStaffId(e.target.value)}
-                placeholder="Staff ID"
+                placeholder="TTxxxx"
                 className={inputClass}
               />
               <input
-                type="text"
-                value={regProjectCode}
-                onChange={(e) => setRegProjectCode(e.target.value)}
-                placeholder="Project Code"
+                type="email"
+                value={regEmail}
+                onChange={(e) => setRegEmail(e.target.value)}
+                placeholder="supervisor@time.com.my"
                 className={inputClass}
               />
 

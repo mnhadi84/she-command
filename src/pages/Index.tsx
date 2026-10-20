@@ -26,6 +26,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import QuickCapture from "@/components/QuickCapture";
 import LiveEnvironment from "@/components/LiveEnvironment";
@@ -159,14 +160,14 @@ const loadWah = (): WahState => {
   } catch { return d; }
 };
 const CheckRow = ({ label, hint, ok, onClick }: { label: string; hint?: string; ok: boolean; onClick: () => void }) => (
-  <button onClick={onClick} className={`flex w-full items-start gap-3 rounded-lg px-3 py-2.5 min-h-[48px] text-left border transition-all ${ok ? "border-secondary/30 bg-secondary/10" : "glass border-border/30"}`}>
-    <ShieldCheck className={`h-4 w-4 shrink-0 mt-0.5 ${ok ? "text-secondary" : "text-muted-foreground"}`} />
-    <div className="flex-1">
+  <Button variant="ghost" aria-pressed={ok} onClick={onClick} className={`h-auto whitespace-normal justify-start flex w-full items-start gap-3 rounded-lg px-3 py-2.5 min-h-[48px] text-left border transition-all ${ok ? "border-safe/30 bg-safe/10 glow-green hover:bg-safe/15" : "glass border-border/30 hover:bg-muted/30"}`}>
+    <ShieldCheck className={`h-4 w-4 shrink-0 mt-0.5 ${ok ? "text-safe" : "text-muted-foreground"}`} />
+    <div className="flex-1 min-w-0">
       <p className="clamp-body font-medium text-foreground">{label}</p>
       {hint && <p className="clamp-body text-muted-foreground">{hint}</p>}
     </div>
-    <span className={`clamp-body font-display uppercase tracking-wider ${ok ? "text-secondary" : "text-muted-foreground"}`}>{ok ? "Verified" : "Pending"}</span>
-  </button>
+    <span className={`clamp-body font-display uppercase tracking-wider shrink-0 rounded-full border px-2 py-0.5 ${ok ? "text-safe bg-safe/10 border-safe/30" : "text-muted-foreground border-border/30"}`}>{ok ? "Verified" : "Pending"}</span>
+  </Button>
 );
 
 const emptyDetails = (): UnsafeDetails => ({ severity: "", description: "", assignTo: "" });
@@ -240,7 +241,7 @@ const SmartStatusCard = ({
   const statusLabel = status === "safe" ? "Safe" : status === "unsafe" ? "Unsafe" : status === "na" ? "N/A" : "Pending";
   const statusColor =
     status === "safe"
-      ? "text-secondary border-secondary/20"
+      ? "text-safe border-safe/30 glow-green"
       : status === "unsafe"
       ? "text-primary border-primary/20"
       : status === "na"
@@ -248,18 +249,19 @@ const SmartStatusCard = ({
       : "text-muted-foreground border-border/10";
 
   return (
-    <button
+    <Button variant="ghost"
       onClick={onToggle}
-      className={`glass rounded-xl p-3 flex items-center gap-3 border ${statusColor} hover:border-secondary/30 transition-all duration-300 w-full text-left`}
+      className={`glass h-auto whitespace-normal justify-start rounded-xl p-3 flex items-center gap-3 border ${statusColor} ${status === "safe" ? "hover:border-safe/50 hover:bg-safe/5" : "hover:border-secondary/30 hover:bg-muted/30"} transition-all duration-300 w-full text-left`}
     >
-      <div className="w-9 h-9 rounded-lg glass-strong flex items-center justify-center border border-border/20 shrink-0">
-        <Icon className="h-4 w-4 text-secondary" />
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center border shrink-0 ${status === "safe" ? "bg-safe/10 border-safe/30" : "glass-strong border-border/20"}`}>
+        <Icon className={`h-4 w-4 ${status === "safe" ? "text-safe" : "text-secondary"}`} />
       </div>
       <span className="clamp-body font-semibold text-foreground flex-1 truncate">{cat.title}</span>
-      <span className={`clamp-body font-display font-bold uppercase tracking-wider ${status === "safe" ? "text-secondary" : status === "unsafe" ? "text-primary" : "text-muted-foreground"}`}>
+      <span className={`inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-1 clamp-body font-display font-bold uppercase tracking-wider ${status === "safe" ? "text-safe bg-safe/10 border border-safe/30" : status === "unsafe" ? "text-primary" : "text-muted-foreground"}`}>
+        {status === "safe" && <Check className="h-3.5 w-3.5" />}
         {statusLabel}
       </span>
-    </button>
+    </Button>
   );
 };
 
@@ -499,17 +501,17 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                           )}
 
                           {/* Universal mandatory harness check */}
-                          <div className={`rounded-lg p-3 border space-y-2 ${wah.harness ? "border-secondary/30 bg-secondary/10" : "border-unsafe/50 bg-unsafe/10"}`}>
+                          <div className={`rounded-lg p-3 border space-y-2 ${wah.harness ? "border-safe/30 bg-safe/10 glow-green" : "border-unsafe/50 bg-unsafe/10"}`}>
                             <button
                               onClick={() => setWah((w) => ({ ...w, harness: !w.harness }))}
                               className="flex w-full items-start gap-3 text-left min-h-[48px]"
                             >
-                              {wah.harness ? <ShieldCheck className="h-5 w-5 text-secondary shrink-0 mt-0.5" /> : <AlertTriangle className="h-5 w-5 text-unsafe shrink-0 mt-0.5" />}
+                              {wah.harness ? <ShieldCheck className="h-5 w-5 text-safe shrink-0 mt-0.5" /> : <AlertTriangle className="h-5 w-5 text-unsafe shrink-0 mt-0.5" />}
                               <div className="flex-1">
                                 <p className="clamp-body font-semibold text-foreground">Full-Body Harness &amp; Fall Arrest Compliance <span className="text-unsafe">*</span></p>
                                 <p className="clamp-body text-muted-foreground">100% tie-off, twin lanyard with shock absorber, inspected condition.</p>
                               </div>
-                              <span className={`clamp-body font-display uppercase tracking-wider px-2 py-0.5 rounded-full ${wah.harness ? "bg-secondary/20 text-secondary" : "bg-unsafe/20 text-unsafe"}`}>{wah.harness ? "Yes" : "No"}</span>
+                              <span className={`clamp-body font-display uppercase tracking-wider px-2 py-0.5 rounded-full ${wah.harness ? "bg-safe/20 text-safe" : "bg-unsafe/20 text-unsafe"}`}>{wah.harness ? "Yes" : "No"}</span>
                             </button>
                             {!wah.harness && (
                               <p className="clamp-body font-bold text-unsafe">CRITICAL VIOLATION: Zero tolerance for non-compliance on fall protection.</p>
@@ -634,17 +636,17 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
                               {PLANT_ITEMS.map((item) => {
                                 const ok = plantChecks[item.key];
                                 return (
-                                  <button
+                                  <Button variant="ghost" aria-pressed={ok}
                                     key={item.key}
                                     onClick={() => setPlantChecks((p) => ({ ...p, [item.key]: !p[item.key] }))}
-                                    className={`w-full flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-all duration-200 border ${ok ? "border-secondary/40 bg-secondary/10" : "border-border/30 glass hover:border-safety-orange/30"}`}
+                                    className={`h-auto whitespace-normal justify-start w-full flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-all duration-200 border ${ok ? "border-safe/40 bg-safe/10 glow-green hover:bg-safe/15" : "border-border/30 glass hover:border-safety-orange/30"}`}
                                   >
-                                    <Wrench className={`h-4 w-4 shrink-0 ${ok ? "text-secondary" : "text-muted-foreground"}`} />
+                                    {ok ? <Check className="h-4 w-4 shrink-0 text-safe" /> : <Wrench className="h-4 w-4 shrink-0 text-muted-foreground" />}
                                     <span className={`clamp-body font-medium flex-1 ${ok ? "text-foreground" : "text-muted-foreground"}`}>{item.label}</span>
-                                    <span className={`clamp-body font-display font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${ok ? "bg-secondary/20 text-secondary" : "bg-muted text-muted-foreground"}`}>
+                                    <span className={`clamp-body font-display font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${ok ? "bg-safe/20 text-safe" : "bg-muted text-muted-foreground"}`}>
                                       {ok ? "Verified" : "Unverified"}
                                     </span>
-                                  </button>
+                                  </Button>
                                 );
                               })}
                             </div>

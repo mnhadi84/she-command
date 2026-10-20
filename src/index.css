@@ -49,10 +49,10 @@
     --glass-bg: 221 31% 10% / 0.65;
     --glass-border: 324 100% 46% / 0.22;
     --glow-red: 355 78% 56%;
-    --glow-green: 324 100% 46%;
+    --glow-green: 160 84% 39%;
     --glow-blue: 196 100% 44%;
     --glow-brand: 324 100% 46%;
-    --status-safe: 122 38% 45%;
+    --status-safe: 160 84% 39%;
     --status-unsafe: 355 78% 56%;
     --status-na: 220 15% 40%;
     --safety-orange: 25 95% 53%;
@@ -83,6 +83,15 @@
     background: hsla(221 31% 10% / 0.85);
     backdrop-filter: blur(24px);
     border: 1px solid hsla(220 15% 30% / 0.5);
+  }
+
+  .esg-section {
+    --glass-border: var(--accent) / 0.18;
+  }
+
+  .esg-section .glass-strong {
+    background: hsl(var(--accent) / 0.1);
+    border-color: hsl(var(--accent) / 0.25);
   }
 
   .glow-red {

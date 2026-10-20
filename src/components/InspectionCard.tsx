@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Camera, ChevronDown, AlertTriangle } from "lucide-react";
+import { Camera, ChevronDown, AlertTriangle, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { LucideIcon } from "lucide-react";
 import {
   AlertDialog,
@@ -96,8 +97,8 @@ const InspectionCard = ({
         style={{ animationDelay: `${index * 50}ms` }}
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-lg bg-secondary/15 border border-secondary/40">
-            <Icon className="h-5 w-5 text-secondary" />
+          <div className={`flex h-12 w-12 min-h-[48px] min-w-[48px] items-center justify-center rounded-lg border ${status === "safe" ? "bg-safe/15 border-safe/40" : "bg-secondary/15 border-secondary/40"}`}>
+            <Icon className={`h-5 w-5 ${status === "safe" ? "text-safe" : "text-secondary"}`} />
           </div>
           <h3 className="font-display clamp-heading font-semibold uppercase tracking-wide text-foreground leading-tight">
             {title}
@@ -105,16 +106,17 @@ const InspectionCard = ({
         </div>
 
         <div className="flex gap-1.5 mb-3">
-          <button
+          <Button variant="ghost" aria-pressed={status === "safe"}
             onClick={() => handleToggle("safe")}
             className={`flex-1 rounded-md px-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 ${
               status === "safe"
-                ? "bg-safe text-primary-foreground shadow-lg"
+                ? "bg-safe/15 text-safe border border-safe/40 hover:bg-safe/25"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
+            {status === "safe" && <Check className="h-4 w-4" />}
             Safe
-          </button>
+          </Button>
           <button
             onClick={() => handleToggle("unsafe")}
             className={`flex-1 rounded-md px-3 min-h-[48px] clamp-body font-semibold uppercase tracking-wider transition-all duration-200 ${

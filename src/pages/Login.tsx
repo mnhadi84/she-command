@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, ShieldCheck, UserPlus, X, Activity } from "lucide-react";
+import { Eye, EyeOff, ShieldCheck, UserPlus, X, Wifi } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -80,7 +80,7 @@ const Login = () => {
         {/* Logo — large, transparent, seamless */}
          <div aria-label="TIME dotCom logo" className="flex flex-col items-center mb-3 select-none">
           <span className="font-display text-5xl font-bold lowercase leading-none text-[hsl(var(--brand-magenta))] drop-shadow-[0_0_18px_hsl(var(--brand-magenta)/0.6)]">time</span>
-          <Activity className="h-5 w-16 text-[hsl(var(--brand-cyan))] drop-shadow-[0_0_8px_hsl(var(--brand-cyan)/0.7)]" />
+          <Wifi className="h-6 text-[hsl(var(--brand-magenta))] drop-shadow-[0_0_12px_hsl(var(--brand-magenta)/0.8)]" />
         </div>
 
         {/* Brand Text */}

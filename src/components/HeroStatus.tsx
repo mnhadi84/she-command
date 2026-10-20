@@ -43,7 +43,7 @@ const HeroStatus = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-accent" />
+              <TrendingUp className="h-4 w-4 text-secondary" />
               <div>
                 <p className="text-xs text-muted-foreground">Trend</p>
                 <p className="font-display text-lg font-bold text-secondary">+2.1%</p>

@@ -11,21 +11,21 @@ interface EIACardProps {
 }
 
 const EIACard = ({ title, icon: Icon, pelLabel, note, value, onChange }: EIACardProps) => (
-  <div className="glass rounded-xl p-4 flex items-center gap-4 border border-border/30 hover:border-accent/20 transition-all duration-300">
-    <div className="flex-shrink-0 w-10 h-10 rounded-lg glass-strong flex items-center justify-center border border-accent/20">
-      <Icon className="h-5 w-5 text-accent" />
+  <div className="glass rounded-xl p-4 flex items-center gap-4 border border-border/30 hover:border-secondary/20 transition-all duration-300">
+    <div className="flex-shrink-0 w-10 h-10 rounded-lg glass-strong flex items-center justify-center border border-secondary/20">
+      <Icon className="h-5 w-5 text-secondary" />
     </div>
     <div className="flex-1 min-w-0">
       <p className="font-display clamp-heading font-semibold text-foreground uppercase tracking-wider">{title}</p>
       <p className="clamp-body text-muted-foreground">{pelLabel}</p>
-      {note && <p className="clamp-body text-accent/70 mt-0.5">{note}</p>}
+      {note && <p className="clamp-body text-secondary/70 mt-0.5">{note}</p>}
     </div>
     <input
       type="number"
       placeholder="Enter Value"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-24 rounded-lg glass border border-border/40 px-3 py-2 clamp-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/40 bg-transparent text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+      className="w-24 rounded-lg glass border border-border/40 px-3 py-2 clamp-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-secondary/50 focus:border-secondary/40 bg-transparent text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
     />
   </div>
 );

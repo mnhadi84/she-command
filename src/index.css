@@ -51,6 +51,7 @@
     --glow-red: 355 78% 56%;
     --glow-green: 324 100% 46%;
     --glow-blue: 196 100% 44%;
+    --glow-brand: 324 100% 46%;
     --status-safe: 122 38% 45%;
     --status-unsafe: 355 78% 56%;
     --status-na: 220 15% 40%;
@@ -94,6 +95,10 @@
 
   .glow-blue {
     box-shadow: 0 0 20px hsla(var(--glow-blue) / 0.3), 0 0 60px hsla(var(--glow-blue) / 0.1);
+  }
+
+  .glow-brand {
+    box-shadow: 0 0 20px hsla(var(--glow-brand) / 0.35), 0 0 60px hsla(var(--glow-brand) / 0.12);
   }
 
   .text-gradient-brand {

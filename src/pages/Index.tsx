@@ -819,7 +819,7 @@ const Index = ({ section = "all" }: { section?: DashboardSection }) => {
               URL.revokeObjectURL(url);
               toast.success("Report exported successfully.");
             }}
-            className="w-full rounded-xl py-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider text-foreground bg-secondary hover:bg-secondary/90 transition-all duration-300 shadow-lg shadow-accent/20"
+            className="w-full rounded-xl py-4 flex items-center justify-center gap-3 font-display clamp-heading font-semibold uppercase tracking-wider text-foreground bg-secondary hover:bg-secondary/90 transition-all duration-300 shadow-lg shadow-secondary/20"
           >
             <FileDown className="h-5 w-5" />
             Export Report

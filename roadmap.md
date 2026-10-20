@@ -1,3 +1,10 @@
+# Current inspection workflow updates
+- [x] Persist editable Active Project and Assessor; include names in reports.
+- [x] Add confirmed logout that clears session state; cancel and confirm verified in the app.
+- [x] Add matching registration password fields with eye toggles; validation verified, existing mock sign-in unchanged, no password storage.
+- [x] Enable unsafe camera/gallery attachments with preview and remove/replace; upload/removal verified, evidence retained in memory until refresh.
+- [x] Clean methodology wording; app flows verified and 14 tests passed.
+
 # Camera analysis
 - [x] Add protected direct-Google photo analysis and structured results.
 - [x] Connect camera with labeled simulated fallback; six tests and signed-out upload/reset passed.

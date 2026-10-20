@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Camera, ChevronDown, AlertTriangle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import HazardEvidence from "@/components/HazardEvidence";
 import type { LucideIcon } from "lucide-react";
 import {
   AlertDialog,
@@ -37,6 +38,8 @@ interface InspectionCardProps {
   unsafeDetails: UnsafeDetails;
   onUnsafeDetailsChange: (details: UnsafeDetails) => void;
   showValidation: boolean;
+  evidencePhoto?: string;
+  onEvidencePhotoChange: (photo?: string) => void;
 }
 
 const severityOptions = ["Low", "Medium", "High", "Critical"];
@@ -64,6 +67,8 @@ const InspectionCard = ({
   unsafeDetails,
   onUnsafeDetailsChange,
   showValidation,
+  evidencePhoto,
+  onEvidencePhotoChange,
 }: InspectionCardProps) => {
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -197,10 +202,7 @@ const InspectionCard = ({
             </div>
 
             {/* Photo Upload */}
-            <button className="flex items-center gap-2 rounded-md bg-primary/15 border border-primary/30 px-3 min-h-[48px] text-xs font-medium text-primary hover:bg-primary/25 transition-colors w-full justify-center">
-              <Camera className="h-4 w-4" />
-              Upload Photo
-            </button>
+            <HazardEvidence photo={evidencePhoto} onChange={onEvidencePhotoChange} />
 
             {/* Assign To */}
             <div>

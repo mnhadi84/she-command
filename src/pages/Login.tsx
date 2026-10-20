@@ -4,6 +4,8 @@ import { Eye, EyeOff, ShieldCheck, UserPlus, X, Wifi } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { registrationSchema } from "@/lib/registration-validation";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,6 +20,11 @@ const Login = () => {
   const [regStaffId, setRegStaffId] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
+  const [regPassword, setRegPassword] = useState("");
+  const [regConfirmPassword, setRegConfirmPassword] = useState("");
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showRegConfirmPassword, setShowRegConfirmPassword] = useState(false);
+  const validRegistration = registrationSchema.safeParse({ name: regName, staffId: regStaffId, email: regEmail, password: regPassword, confirmPassword: regConfirmPassword }).success;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +35,10 @@ const Login = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validRegistration) {
+      toast({ title: "Check Registration", description: "Complete every field and make sure both passwords match.", variant: "destructive" });
+      return;
+    }
     const email = regEmail.trim();
     if (!regName.trim() || !regStaffId.trim() || !email) {
       toast({ title: "Missing Fields", description: "Please fill in all registration fields.", variant: "destructive" });
@@ -56,6 +67,8 @@ const Login = () => {
         setRegName("");
         setRegStaffId("");
         setRegEmail("");
+        setRegPassword("");
+        setRegConfirmPassword("");
       }
     } catch {
       toast({ title: "Error", description: "An unexpected error occurred.", variant: "destructive" });
@@ -167,15 +180,16 @@ const Login = () => {
       {/* Registration Overlay */}
       {showRegister && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/70 backdrop-blur-sm">
-          <div className="relative w-full max-w-[400px] rounded-2xl border border-white/10 bg-[hsl(220,20%,10%)]/95 p-8 shadow-2xl backdrop-blur-xl">
+          <div role="dialog" aria-modal="true" aria-labelledby="registration-title" className="relative w-full max-w-[400px] max-h-[90dvh] overflow-y-auto rounded-lg border border-border bg-card p-8 shadow-2xl backdrop-blur-xl">
             <button
-              onClick={() => setShowRegister(false)}
+              onClick={() => { setShowRegister(false); setRegPassword(""); setRegConfirmPassword(""); }}
+              aria-label="Close registration"
               className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <h2 className="font-display text-lg font-bold tracking-[0.12em] text-[hsl(210,60%,55%)] mb-1">
+            <h2 id="registration-title" className="font-display text-lg font-bold tracking-[0.12em] text-accent mb-1">
               NEW REGISTRATION
             </h2>
             <p className="text-xs text-white/40 mb-6">Create your SHE-Analytics field account</p>
@@ -186,6 +200,9 @@ const Login = () => {
                 value={regName}
                 onChange={(e) => setRegName(e.target.value)}
                 placeholder="Full Name"
+                aria-label="Full Name"
+                maxLength={100}
+                required
                 className={inputClass}
               />
               <input
@@ -193,6 +210,9 @@ const Login = () => {
                 value={regStaffId}
                 onChange={(e) => setRegStaffId(e.target.value)}
                 placeholder="TTxxxx"
+                aria-label="Registration Staff ID"
+                maxLength={100}
+                required
                 className={inputClass}
               />
               <input
@@ -200,16 +220,31 @@ const Login = () => {
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
                 placeholder="supervisor@time.com.my"
+                aria-label="Email Address"
+                maxLength={255}
+                required
                 className={inputClass}
               />
 
-              <button
+              {[
+                { label: "Password", value: regPassword, set: setRegPassword, visible: showRegPassword, toggle: () => setShowRegPassword((v) => !v) },
+                { label: "Confirm Password", value: regConfirmPassword, set: setRegConfirmPassword, visible: showRegConfirmPassword, toggle: () => setShowRegConfirmPassword((v) => !v) },
+              ].map((field) => (
+                <div className="relative" key={field.label}>
+                  <input type={field.visible ? "text" : "password"} aria-label={field.label} placeholder={field.label} value={field.value} onChange={(e) => field.set(e.target.value)} required maxLength={128} autoComplete="new-password" className={`${inputClass} pr-10`} />
+                  <Button type="button" variant="ghost" size="icon" aria-label={`${field.visible ? "Hide" : "Show"} ${field.label.toLowerCase()}`} title={`${field.visible ? "Hide" : "Show"} ${field.label.toLowerCase()}`} onClick={field.toggle} className="absolute right-0 top-0 text-muted-foreground">
+                    {field.visible ? <EyeOff /> : <Eye />}
+                  </Button>
+                </div>
+              ))}
+              {regConfirmPassword && regPassword !== regConfirmPassword && <p role="alert" className="text-xs text-destructive">Passwords must match.</p>}
+              <Button
                 type="submit"
-                disabled={isRegistering}
-                className="w-full py-3 rounded-lg bg-[hsl(210,60%,45%)] hover:bg-[hsl(210,60%,50%)] text-white font-display font-semibold text-sm tracking-[0.15em] uppercase transition-all duration-200 disabled:opacity-50 hover:shadow-[0_0_25px_rgba(60,120,200,0.3)]"
+                disabled={isRegistering || !validRegistration}
+                className="w-full font-display font-semibold tracking-[0.15em] uppercase"
               >
                 {isRegistering ? "Registering..." : "Create Account"}
-              </button>
+              </Button>
             </form>
           </div>
         </div>
